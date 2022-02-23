@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/tyler/Documents/GitHub/LegoEV3Android/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/Users/tyler/Documents/GitHub/LegoEV3Android/app/src/main/res/layout/fragment_controller.xml" value="0.1" />
+        <entry key="..\:/Users/tyler/Documents/GitHub/LegoEV3Android/app/src/main/res/layout/fragment_setup.xml" value="0.1" />
       </map>
     </option>
   </component>
