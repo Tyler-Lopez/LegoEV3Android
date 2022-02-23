@@ -9,40 +9,60 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
+import androidx.core.content.getSystemService
 import com.example.legoev3android.utils.Constants
+import hilt_aggregated_deps._dagger_hilt_android_internal_modules_ApplicationContextModule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.*
 
-class MyBluetoothService(private val handler: Handler) : Service() {
-    val bluetoothAdapter: BluetoothAdapter? = (
-            applicationContext.getSystemService(Context.BLUETOOTH_SERVICE)
-                    as BluetoothManager).adapter
+class MyBluetoothService(context: Context) {
+
+    // Member fields
+    private var mConnectThread: ConnectThread? = null
+    private var mConnectedThread: ConnectedThread? = null
+    private val mAdapter: BluetoothAdapter? =
+        (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+            .adapter
+    var mState = Constants.STATE_NONE
+        private set
+    private var mNewState = Constants.STATE_NONE
+
+    fun connect(device: BluetoothDevice) {
+        // Cancel thread attempting to make a connection
+        if (mState == Constants.STATE_CONNECTING)
+            mConnectThread?.cancel().also { mConnectThread = null }
+        // Cancel threads currently running a connection
+        if (mState == Constants.STATE_CONNECTING)
+            mConnectedThread?.cancel().also { mConnectedThread = null }
+        // Start thread to connect with device
+        mConnectThread = ConnectThread(device)
+        mConnectThread?.start()
+    }
 
     private inner class ConnectThread(device: BluetoothDevice) : Thread() {
+
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createRfcommSocketToServiceRecord(UUID.fromString(Constants.ROBOT_UUID))
         }
 
         override fun run() {
-            // Cancel discovery as otherwise slows connection
-            // Always cancel before connection attempt
-            bluetoothAdapter?.cancelDiscovery()
+            mAdapter?.cancelDiscovery()
 
             mmSocket?.let { socket ->
                 socket.connect()
-                // Initiate a thread for transferring data
-                //  manageMyConnectedSocket(socket)
+                // Manage socket by passing into another thread
             }
-
         }
 
         fun cancel() {
             try {
                 mmSocket?.close()
             } catch (e: IOException) {
-                println("Could not close the client socket.")
+                // Could not close the client socket
             }
         }
     }
@@ -50,22 +70,16 @@ class MyBluetoothService(private val handler: Handler) : Service() {
     private inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
         private val mmInStream: InputStream = mmSocket.inputStream
         private val mmOutStream: OutputStream = mmSocket.outputStream
-        private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for stream
+        private val mmBuffer: ByteArray = ByteArray(1024)
+        // TODO Check documentation to fill this in later
 
-        // run seems to be used to READ from bluetooth device... we won't use here yet
-        fun write(bytes: ByteArray) {
+        fun cancel() {
             try {
-                mmOutStream.write(bytes)
+                mmSocket.close()
             } catch (e: IOException) {
-                println("Error occurred sending data")
-                // Some other things can be done here, check docs if necessary
-                return
+                // Could not close the connect socket
             }
-            // Something about written message and handler here avoiding for now
         }
     }
 
-    override fun onBind(p0: Intent?): IBinder? {
-        TODO("Not yet implemented")
-    }
 }

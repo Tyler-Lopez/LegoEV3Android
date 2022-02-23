@@ -4,6 +4,7 @@ import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,26 +17,27 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
     private val viewModel: MainViewModel by viewModels()
     private var binding: FragmentSetupBinding? = null
+    private var permissionMsg: TextView? = null
 
     private val requestPermissionsLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
             if (isGranted.containsValue(false)) {
-                // Denied at least one permission
-                // Show button
+               permissionMsg?.text = "At least one permission was denied."
             } else {
-                // Permission granted
+                startBluetoothConnection()
             }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSetupBinding.bind(view)
+        permissionMsg = binding?.permissionMsg
 
         // TO-DO navigate to bluetooth
         if (BluetoothUtility.hasBluetoothPermissions(requireContext())) {
-            binding?.permissionMsg?.text = "Permission already granted."
+            startBluetoothConnection()
         } else {
             binding?.permissionMsg?.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -54,5 +56,14 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
+    }
+
+    fun startBluetoothConnection() {
+        if (viewModel.getAdapter(requireContext()) == null)
+        // Device doesn't support bluetooth
+            permissionMsg?.text = "Device doesn't support Bluetooth."
+        else {
+            // Device supports bluetooth
+        }
     }
 }
