@@ -2,4 +2,6 @@
     <string name="app_name">LegoEV3Android</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="bluetooth_should_notify">This application requires access to Bluetooth to control the EV3 robot.</string>
+    <string name="request_permission_msg">Click to request permissions.</string>
 </resources>

@@ -19,62 +19,36 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
     private val requestPermissionsLauncher =
         registerForActivityResult(
-            ActivityResultContracts
-                .RequestMultiplePermissions()
+            ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
             if (isGranted.containsValue(false)) {
-                // AT LEAST ONE PERMISSION WAS DENIED
-                binding?.permissionMsg?.text = "You denied at least one permission."
-            }
-            else {
-                binding?.permissionMsg?.text = "You granted both permissions"
-            }
-        }
-
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts
-                .RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                // AT LEAST ONE PERMISSION WAS DENIED
-                binding?.permissionMsg?.text = "You denied at least one permission."
-            }
-            else {
-                binding?.permissionMsg?.text = "You granted both permissions"
+                // Denied at least one permission
+                // Show button
+            } else {
+                // Permission granted
             }
         }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSetupBinding.bind(view)
-        binding?.permissionMsg?.text = "Click to grant permission"
-        binding?.permissionMsg?.setOnClickListener {
-            when {
-                BluetoothUtility.hasBluetoothPermissions(requireContext()) -> {
-                    binding?.permissionMsg?.text = "Permission already granted."
-                }
-                else -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        requestPermissionsLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.BLUETOOTH_SCAN,
-                                Manifest.permission.BLUETOOTH_CONNECT
-                            )
+
+        // TO-DO navigate to bluetooth
+        if (BluetoothUtility.hasBluetoothPermissions(requireContext())) {
+            binding?.permissionMsg?.text = "Permission already granted."
+        } else {
+            binding?.permissionMsg?.setOnClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    requestPermissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_SCAN
                         )
-                    } else {
-                        requestPermissionLauncher.launch(
-                                Manifest.permission.BLUETOOTH
-                        )
-                    }
+                    )
                 }
             }
         }
     }
-
-
 
     // This is necessary to prevent memory leaks
     override fun onDestroyView() {
