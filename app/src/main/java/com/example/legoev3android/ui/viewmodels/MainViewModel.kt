@@ -4,7 +4,9 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.utils.Constants
@@ -19,6 +21,8 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor() : ViewModel() {
     private var mBluetoothService: MyBluetoothService? = null
     private var mBluetoothAdapter: BluetoothAdapter? = null
+
+
 
     fun getAdapter(context: Context): BluetoothAdapter? {
         if (mBluetoothAdapter != null)

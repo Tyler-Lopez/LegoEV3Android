@@ -31,6 +31,8 @@ class MyBluetoothService(context: Context) {
         private set
     private var mNewState = Constants.STATE_NONE
 
+
+
     fun connect(device: BluetoothDevice) {
         // Cancel thread attempting to make a connection
         if (mState == Constants.STATE_CONNECTING)

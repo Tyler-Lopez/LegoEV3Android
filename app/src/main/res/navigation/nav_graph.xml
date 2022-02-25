@@ -2,12 +2,12 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/setupFragment">
+    app:startDestination="@id/permissionFragment">
 
     <fragment
-        android:id="@+id/setupFragment"
-        android:name="com.example.legoev3android.ui.fragments.SetupFragment"
-        android:label="SetupFragment" >
+        android:id="@+id/permissionFragment"
+        android:name="com.example.legoev3android.ui.fragments.PermissionFragment"
+        android:label="PermissionFragment" >
         <action
             android:id="@+id/action_setupFragment_to_controllerFragment"
             app:destination="@id/controllerFragment" />
