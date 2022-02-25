@@ -3,32 +3,53 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <TextView
-        android:id="@+id/permission_msg"
-        android:layout_width="match_parent"
+        android:id="@+id/centered_text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/bluetooth_should_notify"
-        android:textAlignment="center"
+        android:visibility="gone"
         android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.40" />
-
-    <TextView
-        android:id="@+id/request_permission_msg"
-        android:layout_width="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constrain_layout_center"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/request_permission_msg"
-        android:textAlignment="center"
-        android:textSize="24sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.55" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/permission_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bluetooth_should_notify"
+            android:textAlignment="center"
+            android:textSize="32sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/permission_subtext"
+            app:layout_constraintVertical_bias="0.50" />
+
+        <TextView
+            android:id="@+id/permission_subtext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/request_permission_msg"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintTop_toBottomOf="@id/permission_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.50" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
