@@ -34,6 +34,8 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
     private lateinit var centerConstraintLayout: ConstraintLayout
     private lateinit var textConstraintToSubtext: TextView
     private lateinit var textConstraintToText: TextView
+
+    // Handle available device recycler view search
     private lateinit var rvDevices: RecyclerView
     private lateinit var deviceAdapter: DeviceAdapter
     private val deviceList = mutableListOf<BluetoothDevice>()
