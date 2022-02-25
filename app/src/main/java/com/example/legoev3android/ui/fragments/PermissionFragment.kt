@@ -15,8 +15,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentPermissionBinding
+import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.PermissionUtility
 
@@ -32,7 +34,9 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
     private lateinit var centerConstraintLayout: ConstraintLayout
     private lateinit var textConstraintToSubtext: TextView
     private lateinit var textConstraintToText: TextView
-
+    private lateinit var rvDevices: RecyclerView
+    private lateinit var deviceAdapter: DeviceAdapter
+    private val deviceList = mutableListOf<BluetoothDevice>()
 
     // Used to launch and receive results for permission requests
     private val requestPermissionsLauncher =
@@ -57,8 +61,8 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.run {
-                    centeredText.text =
-                       centeredText.text.toString() + "\n" + device.address + device.name + device.uuids
+                    deviceList.add(this)
+                    rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
                 }
             }
         }
@@ -80,6 +84,7 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
         textConstraintToText = binding!!.permissionSubtext
         centeredText = binding!!.centeredText
         centerConstraintLayout = binding!!.constrainLayoutCenter
+        rvDevices = binding!!.rvConnections
 
         centeredText.text = "LOADING BLUETOOTH"
 
@@ -88,10 +93,11 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
             findAvailableDevices()
         else {
             // Else, make text and subtext visible
-                //
+            //
             centeredText.visibility = View.GONE
             centerConstraintLayout.visibility = View.VISIBLE
-            textConstraintToSubtext.text = "This application requires Location and Bluetooth permissions."
+            textConstraintToSubtext.text =
+                "This application requires Location and Bluetooth permissions."
             textConstraintToText.text = "Click to grant permissions."
             centerConstraintLayout.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -128,17 +134,16 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
 
         centerConstraintLayout.visibility = View.GONE
 
+
         if (adapter == null) {
             // Hide the centerConstraintLayout, make centered text visible
             centeredText.visibility = View.VISIBLE
             centeredText.text = "This device does not support Bluetooth connections."
-        }
-        else {
+        } else {
             // Device supports bluetooth
             // Print out all discoverable devices
-            centeredText.visibility = View.VISIBLE
-            centeredText.text = "Finding devices"
-            // Add recycler view here soon
+            rvDevices.adapter = DeviceAdapter(deviceList)
+            rvDevices.visibility = View.VISIBLE
             println(adapter.startDiscovery())
         }
     }
