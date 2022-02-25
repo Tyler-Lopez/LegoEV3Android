@@ -2,6 +2,7 @@ package com.example.legoev3android.ui.fragments
 
 import android.Manifest
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -41,14 +42,14 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
     // Including those not yet paired
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            println("here")
             val action: String? = intent.action
             // If a device was found
             if (action == BluetoothDevice.ACTION_FOUND) {
                 val device: BluetoothDevice? =
                     intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.run {
-                    println(this)
-                    permissionMsg?.text = permissionMsg?.text.toString() + device.name
+                    permissionMsg?.text = permissionMsg?.text.toString() + "\n" + device.address + device.name + device.uuids
                 }
             }
         }
@@ -68,15 +69,25 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
         permissionMsg = binding?.permissionMsg
 
         // If the user already has given bluetooth permissions
-        if (BluetoothUtility.hasBluetoothPermissions(requireContext())) {
+        if (false)// COME BACK TO LATER DEBUGGING ISSUE
+   //     if (BluetoothUtility.hasBluetoothPermissions(requireContext())) {
             startBluetoothConnection()
-        } else {
+        else {
             binding?.permissionMsg?.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     requestPermissionsLauncher.launch(
                         arrayOf(
                             Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.BLUETOOTH_SCAN
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                } else {
+                    requestPermissionsLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
                         )
                     )
                 }
@@ -91,7 +102,9 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
     }
 
     fun startBluetoothConnection() {
-        val adapter = viewModel.getAdapter(requireContext())
+        val adapter =
+            (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+                .adapter
         if (adapter == null)
         // Device doesn't support bluetooth
             permissionMsg?.text = "Device doesn't support Bluetooth."
@@ -99,7 +112,8 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
             // Device supports bluetooth
             // Print out all discoverable devices
             permissionMsg?.text = "..."
-            adapter.startDiscovery()
+            println("Attempting to start discovery")
+            println(adapter.startDiscovery())
         }
     }
 }
