@@ -74,9 +74,8 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // Including those not yet paired
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val action: String? = intent.action
             // If a device was found
-            when (action) {
+            when (intent.action) {
                 BluetoothDevice.ACTION_FOUND -> {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)

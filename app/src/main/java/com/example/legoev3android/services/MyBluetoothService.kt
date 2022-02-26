@@ -1,19 +1,11 @@
 package com.example.legoev3android.services
 
-import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.Intent
-import android.os.Handler
-import android.os.IBinder
-import androidx.core.content.getSystemService
 import com.example.legoev3android.utils.Constants
-import hilt_aggregated_deps._dagger_hilt_android_internal_modules_ApplicationContextModule
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
