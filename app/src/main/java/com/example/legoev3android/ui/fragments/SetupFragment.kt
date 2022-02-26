@@ -20,6 +20,7 @@ import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentSetupBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
+import com.example.legoev3android.utils.Constants
 import com.example.legoev3android.utils.PermissionUtility
 
 class SetupFragment : Fragment(R.layout.fragment_setup) {
@@ -45,7 +46,9 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
     private lateinit var rvConstraintLayout: ConstraintLayout
+    private lateinit var textConstrainBottomToRv: TextView
     private val deviceList = mutableListOf<BluetoothDevice>()
+
 
     /*
 
@@ -87,15 +90,13 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     device?.run {
-                        try {
-                            println("FOUND DEVICE")
-                            for (uuid in device.uuids) {
-                                println(uuid)
-                            }
-                            deviceList.add(this)
-                            rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
-                        } catch (e: Exception) {
-                            println("Exception ")
+                        if (!this.uuids.isNullOrEmpty()) {
+                            for (uuid in this.uuids)
+                                if (uuid.toString().uppercase() == Constants.ROBOT_UUID.uppercase()) {
+                                    deviceList.add(this)
+                                    rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+                                    return
+                                }
                         }
                     }
                 }
@@ -119,20 +120,15 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             centeredText.visibility = View.VISIBLE
             centeredText.text = getString(R.string.setup_device_not_supported)
         }
-        // Find all discoverable devices
         else {
-            // Device supports bluetooth
-            // Print out all discoverable devices
             rvDevices.adapter = DeviceAdapter(
                 devices = deviceList
-            ) { device ->
-                rvConstraintLayout.visibility = View.GONE
-                centeredText.visibility = View.VISIBLE
-                adapter.cancelDiscovery()
-                device.fetchUuidsWithSdp()
+            ) {
+                // TO-DO actually connect to device
             }
             rvConstraintLayout.visibility = View.VISIBLE
-            println(adapter.startDiscovery())
+            textConstrainBottomToRv.text = "Searching for LEGO MINDSTORMS EV3"
+            adapter.startDiscovery()
         }
     }
 
@@ -164,6 +160,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         centerConstraintLayout = binding!!.constrainLayoutCenter
         rvDevices = binding!!.rvConnections
         rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
+        textConstrainBottomToRv = binding!!.tvDeviceSearch
 
         // Inform the user we are loading bluetooth (should be shown only very briefly)
         centeredText.text = getString(R.string.setup_loading_bluetooth)
