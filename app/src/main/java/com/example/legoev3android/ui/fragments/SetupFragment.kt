@@ -1,6 +1,7 @@
 package com.example.legoev3android.ui.fragments
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
@@ -15,6 +16,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentSetupBinding
@@ -22,6 +25,7 @@ import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.Constants
 import com.example.legoev3android.utils.PermissionUtility
+import com.example.legoev3android.utils.SelectedDevice
 
 class SetupFragment : Fragment(R.layout.fragment_setup) {
 
@@ -47,6 +51,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     private lateinit var rvDevices: RecyclerView
     private lateinit var rvConstraintLayout: ConstraintLayout
     private lateinit var textConstrainBottomToRv: TextView
+    private val toFetch = mutableListOf<BluetoothDevice>()
     private val deviceList = mutableListOf<BluetoothDevice>()
 
 
@@ -80,23 +85,28 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     device?.run {
-                        this.fetchUuidsWithSdp()
-                        //  deviceList.add(this)
-                        //  rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+                        println("Device found")
+                        toFetch.add(this)
                     }
+                }
+                BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
+                    println("DISCOVERY FINISHED")
+                    toFetch.removeFirst().fetchUuidsWithSdp()
                 }
                 BluetoothDevice.ACTION_UUID -> {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     device?.run {
+                        println("Found device from UUID")
+                        println(device.name)
+                        println(device.bondState)
                         if (!this.uuids.isNullOrEmpty()) {
-                            for (uuid in this.uuids)
-                                if (uuid.toString().uppercase() == Constants.ROBOT_UUID.uppercase()) {
-                                    deviceList.add(this)
-                                    rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
-                                    return
-                                }
+                            println("uuids found not null or empty")
+                            deviceList.add(this)
+                            rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
                         }
+                        if (toFetch.isNotEmpty())
+                            toFetch.removeFirst().fetchUuidsWithSdp()
                     }
                 }
             }
@@ -118,15 +128,22 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             // Hide the centerConstraintLayout, make centered text visible
             centeredText.visibility = View.VISIBLE
             centeredText.text = getString(R.string.setup_device_not_supported)
-        }
-        else {
+        } else {
             rvDevices.adapter = DeviceAdapter(
                 devices = deviceList
             ) {
-                // TO-DO actually connect to device
+                SelectedDevice.BluetoothDevice = it
+                adapter.cancelDiscovery()
+                findNavController().navigate(R.id.action_setupFragment_to_controllerFragment)
             }
             rvConstraintLayout.visibility = View.VISIBLE
             textConstrainBottomToRv.text = "Searching for LEGO MINDSTORMS EV3"
+            val pairedDevices = adapter.bondedDevices
+         //   pairedDevices.forEach { device ->
+           //     println("Bonded device found")
+            //    deviceList.add(device)
+             //   rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+           // }
             adapter.startDiscovery()
         }
     }
@@ -143,8 +160,11 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         // Register for broadcasts when a device is discovered
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         val filterUuid = IntentFilter(BluetoothDevice.ACTION_UUID)
+        val filterFinished = IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+
         requireActivity().registerReceiver(receiver, filter)
         requireActivity().registerReceiver(receiver, filterUuid)
+        requireActivity().registerReceiver(receiver, filterFinished)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

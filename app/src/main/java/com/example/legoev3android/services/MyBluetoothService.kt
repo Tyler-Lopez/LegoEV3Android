@@ -40,7 +40,7 @@ class MyBluetoothService(context: Context) {
     private inner class ConnectThread(device: BluetoothDevice) : Thread() {
 
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            device.createRfcommSocketToServiceRecord(UUID.fromString(Constants.ROBOT_UUID))
+            device.createRfcommSocketToServiceRecord(device.uuids.first().uuid)
         }
 
         override fun run() {
