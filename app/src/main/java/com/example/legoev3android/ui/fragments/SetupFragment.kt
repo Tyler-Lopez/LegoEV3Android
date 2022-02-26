@@ -73,12 +73,31 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         override fun onReceive(context: Context, intent: Intent) {
             val action: String? = intent.action
             // If a device was found
-            if (action == BluetoothDevice.ACTION_FOUND) {
-                val device: BluetoothDevice? =
-                    intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                device?.run {
-                    deviceList.add(this)
-                    rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+            when (action) {
+                BluetoothDevice.ACTION_FOUND -> {
+                    val device: BluetoothDevice? =
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    device?.run {
+                        this.fetchUuidsWithSdp()
+                        //  deviceList.add(this)
+                        //  rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+                    }
+                }
+                BluetoothDevice.ACTION_UUID -> {
+                    val device: BluetoothDevice? =
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    device?.run {
+                        try {
+                            println("FOUND DEVICE")
+                            for (uuid in device.uuids) {
+                                println(uuid)
+                            }
+                            deviceList.add(this)
+                            rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+                        } catch (e: Exception) {
+                            println("Exception ")
+                        }
+                    }
                 }
             }
         }
@@ -104,7 +123,14 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         else {
             // Device supports bluetooth
             // Print out all discoverable devices
-            rvDevices.adapter = DeviceAdapter(deviceList)
+            rvDevices.adapter = DeviceAdapter(
+                devices = deviceList
+            ) { device ->
+                rvConstraintLayout.visibility = View.GONE
+                centeredText.visibility = View.VISIBLE
+                adapter.cancelDiscovery()
+                device.fetchUuidsWithSdp()
+            }
             rvConstraintLayout.visibility = View.VISIBLE
             println(adapter.startDiscovery())
         }
@@ -121,7 +147,9 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
         // Register for broadcasts when a device is discovered
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        val filterUuid = IntentFilter(BluetoothDevice.ACTION_UUID)
         requireActivity().registerReceiver(receiver, filter)
+        requireActivity().registerReceiver(receiver, filterUuid)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

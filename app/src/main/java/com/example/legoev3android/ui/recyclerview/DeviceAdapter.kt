@@ -8,7 +8,8 @@ import com.example.legoev3android.R
 import com.example.legoev3android.databinding.ItemDeviceBinding
 
 class DeviceAdapter(
-    private var devices: List<BluetoothDevice>
+    private var devices: List<BluetoothDevice>,
+    val deviceListener: (BluetoothDevice) -> Unit
 ) : RecyclerView.Adapter<DeviceAdapter.DeviceViewHolder>() {
 
     inner class DeviceViewHolder(
@@ -29,6 +30,9 @@ class DeviceAdapter(
         holder.binding.apply {
             tvMacAddress.text = devices[position].address
             tvDeviceName.text = devices[position].name ?: "No name"
+            buttonConnect.setOnClickListener {
+                deviceListener(devices[position])
+            }
         }
     }
 
