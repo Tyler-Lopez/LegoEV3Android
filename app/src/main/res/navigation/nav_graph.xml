@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/permissionFragment"
-        android:name="com.example.legoev3android.ui.fragments.PermissionFragment"
+        android:name="com.example.legoev3android.ui.fragments.SetupFragment"
         android:label="PermissionFragment" >
         <action
             android:id="@+id/action_setupFragment_to_controllerFragment"

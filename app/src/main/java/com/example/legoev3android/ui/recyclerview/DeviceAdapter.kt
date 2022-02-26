@@ -28,6 +28,7 @@ class DeviceAdapter(
     override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
         holder.binding.apply {
             tvMacAddress.text = devices[position].address
+            tvDeviceName.text = devices[position].name ?: "No name"
         }
     }
 

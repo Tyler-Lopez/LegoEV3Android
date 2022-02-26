@@ -17,40 +17,54 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
-import com.example.legoev3android.databinding.FragmentPermissionBinding
+import com.example.legoev3android.databinding.FragmentSetupBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.PermissionUtility
 
-class PermissionFragment : Fragment(R.layout.fragment_permission) {
+class SetupFragment : Fragment(R.layout.fragment_setup) {
 
     private val viewModel: MainViewModel by viewModels()
-    private var binding: FragmentPermissionBinding? = null
+    private var binding: FragmentSetupBinding? = null
 
-    // When you only want to display a single message
+    /*
+
+    UI ELEMENTS
+    Each section must have visibility programmatically set
+
+     */
+
+    // UI: Centered single text
     private lateinit var centeredText: TextView
 
-    // When you want subtext and primary text
+    // UI: Centered text and subtextWhen you want subtext and primary text
     private lateinit var centerConstraintLayout: ConstraintLayout
     private lateinit var textConstraintToSubtext: TextView
     private lateinit var textConstraintToText: TextView
 
-    // Handle available device recycler view search
+    // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
-    private lateinit var deviceAdapter: DeviceAdapter
+    private lateinit var rvConstraintLayout: ConstraintLayout
     private val deviceList = mutableListOf<BluetoothDevice>()
+
+    /*
+
+    RECEIVERS & BLUETOOTH
+    Used to receive and handle permission requests and BluetoothAdapter discovery
+
+     */
+
 
     // Used to launch and receive results for permission requests
     private val requestPermissionsLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
-            if (isGranted.containsValue(false)) {
-                textConstraintToSubtext.text = "Permissions are required for this app to function."
-            } else {
-                // Permissions were granted
+            if (isGranted.containsValue(false))
+                textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
+            else // Permissions were granted
                 findAvailableDevices()
-            }
+
         }
 
     // Used to launch and receive searches for available bluetooth devices
@@ -70,6 +84,38 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
         }
     }
 
+
+    // Invoked after permissions have been confirmed
+    // Return all available Bluetooth devices
+    private fun findAvailableDevices() {
+        val adapter =
+            (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+                .adapter
+
+        centerConstraintLayout.visibility = View.GONE
+
+        // The device is NOT supported for Bluetooth
+        if (adapter == null) {
+            // Hide the centerConstraintLayout, make centered text visible
+            centeredText.visibility = View.VISIBLE
+            centeredText.text = getString(R.string.setup_device_not_supported)
+        }
+        // Find all discoverable devices
+        else {
+            // Device supports bluetooth
+            // Print out all discoverable devices
+            rvDevices.adapter = DeviceAdapter(deviceList)
+            rvConstraintLayout.visibility = View.VISIBLE
+            println(adapter.startDiscovery())
+        }
+    }
+
+    /*
+
+    FRAGMENT OVERRIDES
+
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -80,27 +126,32 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentPermissionBinding.bind(view)
+        binding = FragmentSetupBinding.bind(view)
 
+        // Binding is asserted non null here - binding is only made null in
+        // onDestroy to prevent memory leaks
         textConstraintToSubtext = binding!!.permissionText
         textConstraintToText = binding!!.permissionSubtext
         centeredText = binding!!.centeredText
         centerConstraintLayout = binding!!.constrainLayoutCenter
         rvDevices = binding!!.rvConnections
+        rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
 
-        centeredText.text = "LOADING BLUETOOTH"
+        // Inform the user we are loading bluetooth (should be shown only very briefly)
+        centeredText.text = getString(R.string.setup_loading_bluetooth)
 
         // If the user already has given bluetooth permissions
         if (PermissionUtility.hasPermissions(requireContext()))
             findAvailableDevices()
+
+        // The user does not yet have permissions
         else {
-            // Else, make text and subtext visible
-            //
+            // Hide center text, prevent text/subtext/button
             centeredText.visibility = View.GONE
             centerConstraintLayout.visibility = View.VISIBLE
             textConstraintToSubtext.text =
-                "This application requires Location and Bluetooth permissions."
-            textConstraintToText.text = "Click to grant permissions."
+                getString(R.string.setup_permissions_required_message)
+            textConstraintToText.text = getString(R.string.setup_button_grant_permissions)
             centerConstraintLayout.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     requestPermissionsLauncher.launch(
@@ -129,24 +180,4 @@ class PermissionFragment : Fragment(R.layout.fragment_permission) {
         binding = null
     }
 
-    private fun findAvailableDevices() {
-        val adapter =
-            (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
-                .adapter
-
-        centerConstraintLayout.visibility = View.GONE
-
-
-        if (adapter == null) {
-            // Hide the centerConstraintLayout, make centered text visible
-            centeredText.visibility = View.VISIBLE
-            centeredText.text = "This device does not support Bluetooth connections."
-        } else {
-            // Device supports bluetooth
-            // Print out all discoverable devices
-            rvDevices.adapter = DeviceAdapter(deviceList)
-            rvDevices.visibility = View.VISIBLE
-            println(adapter.startDiscovery())
-        }
-    }
 }
