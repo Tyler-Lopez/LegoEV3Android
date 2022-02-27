@@ -94,7 +94,16 @@ object Constants {
     const val opOutput_Prg_Stop = 0xB4
 
     // 4.10 Sound operations (pg. 59 / 109)
+    const val opSound = 0x94
 
+    object opSound_CMD {
+        const val BREAK = 0x01
+        const val PLAY = 0x02
+        const val REPEAT = 0x03
+    }
+
+    const val opSound_Test = 0x95
+    const val opSound_Ready = 0x96
 
 
 
