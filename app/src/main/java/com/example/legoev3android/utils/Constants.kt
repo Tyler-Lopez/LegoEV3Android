@@ -15,7 +15,10 @@ object Constants {
 
 
     // 4.7 Program select operations (pg. 45 / 109)
-
+    const val opSelect8 = 0x5C
+    const val opSelect16 = 0x5D
+    const val opSelect32 = 0x5E
+    const val opSelectF = 0x5F
 
     // 4.8 Input port operations (pg. 46 / 109)
     const val opInput_Device_List = 0x98
