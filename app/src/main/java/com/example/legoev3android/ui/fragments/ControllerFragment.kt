@@ -33,6 +33,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                             binding?.centeredText?.text =
                                 binding?.centeredText?.text.toString() + "\n" + uuid.toString()
                     }
+                    if (device?.bondState == BluetoothDevice.BOND_NONE) {
+                        println("BOND STATE FOUND TO BE NONE, CREATE BOND")
+                        device.createBond()
+                    }
+                }
+                BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
+                    println("HERE BOND STATE CHANGED")
+                    val device: BluetoothDevice? =
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    device?.let { binding?.centeredText?.text = device.bondState.toString() }
                 }
             }
         }
@@ -48,14 +58,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         // Register for broadcasts when a device is discovered
         val filter = IntentFilter(BluetoothDevice.ACTION_UUID)
+        val filterBond = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         requireActivity().registerReceiver(receiver, filter)
+        requireActivity().registerReceiver(receiver, filterBond)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
         val myBlueToothService = MyBluetoothService(requireContext())
-
+        binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
     }
 
