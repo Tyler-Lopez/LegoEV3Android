@@ -118,11 +118,11 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             rvConstraintLayout.visibility = View.VISIBLE
             textConstrainBottomToRv.text = "Searching for LEGO MINDSTORMS EV3"
             val pairedDevices = adapter.bondedDevices
-            //   pairedDevices.forEach { device ->
-            //     println("Bonded device found")
-            //    deviceList.add(device)
-            //   rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
-            // }
+            pairedDevices.forEach { device ->
+                println("Bonded device found")
+                deviceList.add(device)
+                rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+            }
             adapter.startDiscovery()
         }
     }
