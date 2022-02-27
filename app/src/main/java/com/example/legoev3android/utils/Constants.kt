@@ -11,4 +11,21 @@ object Constants {
     const val STATE_CONNECTING = 2 // Initiating ongoing connection
     const val STATE_CONNECTED = 3 // Connected to remote device
 
+    // Sensor Types
+    const val NXT_TOUCH = 1
+    const val NXT_LIGHT = 2
+    const val NXT_SOUND = 3
+    const val NXT_COLOR = 4
+    const val NXT_ULTRASONIC = 5
+    const val NXT_TEMPERATURE = 6
+    const val EV3_LARGE_MOTOR = 7
+    const val EV3_MEDIUM_MOTOR = 8
+    const val EV3_TOUCH = 16
+    const val EV3_COLOR = 29
+    const val EV3_ULTRASONIC = 30
+    const val EV3_GYRO = 32
+
+
+
+
 }

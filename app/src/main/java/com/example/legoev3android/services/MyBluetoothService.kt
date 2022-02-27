@@ -66,8 +66,14 @@ class MyBluetoothService(
     private inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
         private val mmInStream: InputStream = mmSocket.inputStream
         private val mmOutStream: OutputStream = mmSocket.outputStream
-        private val mmBuffer: ByteArray = ByteArray(1024)
+
+        //   private val mmBuffer: ByteArray = ByteArray(20)
         // TODO Check documentation to fill this in later
+        fun moveMotor() {
+            val mmBuffer = ByteArray(0x12) // 0x12 Command Length
+            // Each byte has 8 bits
+
+        }
 
         fun cancel() {
             try {
