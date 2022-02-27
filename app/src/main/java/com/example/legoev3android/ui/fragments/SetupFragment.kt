@@ -51,7 +51,6 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     private lateinit var rvDevices: RecyclerView
     private lateinit var rvConstraintLayout: ConstraintLayout
     private lateinit var textConstrainBottomToRv: TextView
-    private val toFetch = mutableListOf<BluetoothDevice>()
     private val deviceList = mutableListOf<BluetoothDevice>()
 
 
@@ -85,28 +84,8 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     device?.run {
-                        println("Device found")
-                        toFetch.add(this)
-                    }
-                }
-                BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                    println("DISCOVERY FINISHED")
-                    toFetch.removeFirst().fetchUuidsWithSdp()
-                }
-                BluetoothDevice.ACTION_UUID -> {
-                    val device: BluetoothDevice? =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    device?.run {
-                        println("Found device from UUID")
-                        println(device.name)
-                        println(device.bondState)
-                        if (!this.uuids.isNullOrEmpty()) {
-                            println("uuids found not null or empty")
-                            deviceList.add(this)
-                            rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
-                        }
-                        if (toFetch.isNotEmpty())
-                            toFetch.removeFirst().fetchUuidsWithSdp()
+                        deviceList.add(this)
+                        rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
                     }
                 }
             }
@@ -139,11 +118,11 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             rvConstraintLayout.visibility = View.VISIBLE
             textConstrainBottomToRv.text = "Searching for LEGO MINDSTORMS EV3"
             val pairedDevices = adapter.bondedDevices
-         //   pairedDevices.forEach { device ->
-           //     println("Bonded device found")
+            //   pairedDevices.forEach { device ->
+            //     println("Bonded device found")
             //    deviceList.add(device)
-             //   rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
-           // }
+            //   rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
+            // }
             adapter.startDiscovery()
         }
     }
@@ -159,12 +138,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
         // Register for broadcasts when a device is discovered
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        val filterUuid = IntentFilter(BluetoothDevice.ACTION_UUID)
-        val filterFinished = IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
-
         requireActivity().registerReceiver(receiver, filter)
-        requireActivity().registerReceiver(receiver, filterUuid)
-        requireActivity().registerReceiver(receiver, filterFinished)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
