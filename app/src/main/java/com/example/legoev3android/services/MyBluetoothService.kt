@@ -38,6 +38,12 @@ class MyBluetoothService(
         mConnectThread?.start()
     }
 
+    fun moveMotor() {
+        if (mState == Constants.STATE_CONNECTED)
+            mConnectedThread?.moveMotor()
+        else println("ERROR NO LONGER CONNECTED?")
+    }
+
     private inner class ConnectThread(device: BluetoothDevice) : Thread() {
 
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
@@ -49,8 +55,9 @@ class MyBluetoothService(
 
             mmSocket?.let { socket ->
                 socket.connect()
+                mConnectedThread = ConnectedThread(socket)
+                mState = Constants.STATE_CONNECTED
                 debug()
-                // Manage socket by passing into another thread
             }
         }
 
@@ -70,9 +77,33 @@ class MyBluetoothService(
         //   private val mmBuffer: ByteArray = ByteArray(20)
         // TODO Check documentation to fill this in later
         fun moveMotor() {
-            val mmBuffer = ByteArray(0x12) // 0x12 Command Length
-            // Each byte has 8 bits
-
+            val mmBuffer = ByteArray(20) // 0x12 Command Length
+            mmBuffer[0] = (20 - 2).toByte()
+            mmBuffer[1] = 0
+            mmBuffer[2] = 34
+            mmBuffer[3] = 12
+            mmBuffer[4] = (0x80).toByte()
+            mmBuffer[5] = 0
+            mmBuffer[6] = 0
+            mmBuffer[7] = (0xae).toByte()
+            mmBuffer[8] = 0
+            mmBuffer[9] = (0x06).toByte()
+            mmBuffer[10] = (0x81).toByte()
+            mmBuffer[11] = (0x32).toByte()
+            mmBuffer[12] = 0
+            mmBuffer[13] = (0x82).toByte()
+            mmBuffer[14] = (0x84).toByte()
+            mmBuffer[15] = (0x03).toByte()
+            mmBuffer[16] = (0x82).toByte()
+            mmBuffer[17] = (0xB4).toByte()
+            mmBuffer[18] = (0x00).toByte()
+            mmBuffer[19] = 1
+            try {
+                mmOutStream.write(mmBuffer)
+                mmOutStream.flush()
+            } catch (e: Exception) {
+                println(e.localizedMessage + " ERROR HAPPENED MOVING MOTOR")
+            }
         }
 
         fun cancel() {
