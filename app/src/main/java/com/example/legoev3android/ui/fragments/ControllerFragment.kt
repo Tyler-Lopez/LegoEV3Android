@@ -71,7 +71,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
         bluetoothService = MyBluetoothService(requireContext()) {
-            binding?.centeredText?.text = "CONNECTION MADE THIS IS GOOD"
+            println("HERE THIS IS GOOD")
+            requireActivity().runOnUiThread {
+                binding?.centeredText?.text = "CONNECTION MADE THIS IS GOOD"
+            }
         }
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         if (SelectedDevice.BluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED)
