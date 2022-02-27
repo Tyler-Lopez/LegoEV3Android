@@ -1,7 +1,6 @@
 package com.example.legoev3android.ui.fragments
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
@@ -16,14 +15,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentSetupBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
-import com.example.legoev3android.utils.Constants
 import com.example.legoev3android.utils.PermissionUtility
 import com.example.legoev3android.utils.SelectedDevice
 
@@ -116,7 +113,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                 findNavController().navigate(R.id.action_setupFragment_to_controllerFragment)
             }
             rvConstraintLayout.visibility = View.VISIBLE
-            textConstrainBottomToRv.text = "Searching for LEGO MINDSTORMS EV3"
+            textConstrainBottomToRv.text = "Searching for Bluetooth Devices"
             val pairedDevices = adapter.bondedDevices
             pairedDevices.forEach { device ->
                 println("Bonded device found")

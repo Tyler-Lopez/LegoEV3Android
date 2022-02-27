@@ -19,6 +19,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
     private val viewModel: MainViewModel by viewModels()
     private var binding: FragmentControllerBinding? = null
+    private lateinit var bluetoothService: MyBluetoothService
     //
 
     private val receiver = object : BroadcastReceiver() {
@@ -42,6 +43,9 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     println("HERE BOND STATE CHANGED")
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    if (device?.bondState == BluetoothDevice.BOND_BONDED) {
+                        bluetoothService.connect(device)
+                    }
                     device?.let { binding?.centeredText?.text = device.bondState.toString() }
                 }
             }
@@ -66,9 +70,13 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
-        val myBlueToothService = MyBluetoothService(requireContext())
+        bluetoothService = MyBluetoothService(requireContext()) {
+            binding?.centeredText?.text = "CONNECTION MADE THIS IS GOOD"
+        }
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
-        SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
+        if (SelectedDevice.BluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED)
+            SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
+        else bluetoothService.connect(SelectedDevice.BluetoothDevice!!)
     }
 
     // This is necessary to prevent memory leaks

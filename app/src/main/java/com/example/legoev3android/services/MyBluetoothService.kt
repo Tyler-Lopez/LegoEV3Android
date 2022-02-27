@@ -11,7 +11,10 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.*
 
-class MyBluetoothService(context: Context) {
+class MyBluetoothService(
+    val context: Context,
+    val debug: () -> Unit
+) {
 
     // Member fields
     private var mConnectThread: ConnectThread? = null
@@ -22,8 +25,6 @@ class MyBluetoothService(context: Context) {
     var mState = Constants.STATE_NONE
         private set
     private var mNewState = Constants.STATE_NONE
-
-
 
     fun connect(device: BluetoothDevice) {
         // Cancel thread attempting to make a connection
@@ -40,7 +41,7 @@ class MyBluetoothService(context: Context) {
     private inner class ConnectThread(device: BluetoothDevice) : Thread() {
 
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            device.createRfcommSocketToServiceRecord(device.uuids.first().uuid)
+            device.createRfcommSocketToServiceRecord(UUID.fromString(Constants.ROBOT_UUID))
         }
 
         override fun run() {
@@ -48,6 +49,7 @@ class MyBluetoothService(context: Context) {
 
             mmSocket?.let { socket ->
                 socket.connect()
+                debug()
                 // Manage socket by passing into another thread
             }
         }

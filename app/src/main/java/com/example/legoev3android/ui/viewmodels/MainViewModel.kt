@@ -31,8 +31,4 @@ class MainViewModel @Inject constructor() : ViewModel() {
             .adapter.also { mBluetoothAdapter = it }
         return mBluetoothAdapter
     }
-
-    fun setup(context: Context) {
-        mBluetoothService = MyBluetoothService(context)
-    }
 }
