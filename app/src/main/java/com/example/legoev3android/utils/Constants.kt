@@ -11,33 +11,11 @@ object Constants {
     const val STATE_CONNECTING = 2 // Initiating ongoing connection
     const val STATE_CONNECTED = 3 // Connected to remote device
 
-    // Sensor Types
-    const val NXT_TOUCH = 1
-    const val NXT_LIGHT = 2
-    const val NXT_SOUND = 3
-    const val NXT_COLOR = 4
-    const val NXT_ULTRASONIC = 5
-    const val NXT_TEMPERATURE = 6
-    const val EV3_LARGE_MOTOR = 7
-    const val EV3_MEDIUM_MOTOR = 8
-    const val EV3_TOUCH = 16
-    const val EV3_COLOR = 29
-    const val EV3_ULTRASONIC = 30
-    const val EV3_GYRO = 32
+    // FIRMWARE TRANSCRIPTION
 
 
-    // Commands
-    const val STOP_ALL = 0x0D // Stop all devices
-    const val GET_NAME = 0x15
-    const val GET_MODENAME = 0x16
-    const val GET_FIGURES = 0x18
-    const val GET_CHANGES = 0x19
-    const val CLR_CHANGES = 0x1A
-    const val READY_PCT = 0x1B
-    const val READY_RAW = 0x1C
-    const val READY_SI = 0x1D
-    const val GET_MINMAX = 0x1E
-    const val GET_BUMPS = 0x1F
+    // 4.7 Program select operations (pg. 45 / 109)
+
 
     // 4.8 Input port operations (pg. 46 / 109)
     const val opInput_Device_List = 0x98
