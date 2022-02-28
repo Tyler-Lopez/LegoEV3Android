@@ -20,7 +20,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     private val viewModel: MainViewModel by viewModels()
     private var binding: FragmentControllerBinding? = null
     private lateinit var bluetoothService: MyBluetoothService
-    //
+
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -89,6 +89,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     // This is necessary to prevent memory leaks
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().unregisterReceiver(receiver) // Unregister Intent receiver
+        bluetoothService.destroy()
         binding = null
     }
 }

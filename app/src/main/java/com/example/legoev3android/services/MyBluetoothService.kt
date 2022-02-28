@@ -5,7 +5,9 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
+import android.util.Log
 import com.example.legoev3android.utils.Constants
+import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -19,7 +21,7 @@ class MyBluetoothService(
     // Member fields
     private var mConnectThread: ConnectThread? = null
     private var mConnectedThread: ConnectedThread? = null
-    private val mAdapter: BluetoothAdapter? =
+    private var mAdapter: BluetoothAdapter? =
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
             .adapter
     var mState = Constants.STATE_NONE
@@ -38,6 +40,13 @@ class MyBluetoothService(
         mConnectThread?.start()
     }
 
+    fun destroy() {
+        mConnectedThread?.cancel()
+        mConnectThread?.cancel()
+        mAdapter = null
+        mState = Constants.STATE_NONE
+    }
+
     fun moveMotor() {
         if (mState == Constants.STATE_CONNECTED)
             mConnectedThread?.moveMotor()
@@ -52,12 +61,15 @@ class MyBluetoothService(
 
         override fun run() {
             mAdapter?.cancelDiscovery()
-
-            mmSocket?.let { socket ->
-                socket.connect()
-                mConnectedThread = ConnectedThread(socket)
-                mState = Constants.STATE_CONNECTED
-                debug()
+            try {
+                mmSocket?.let { socket ->
+                    socket.connect()
+                    mConnectedThread = ConnectedThread(socket)
+                    mState = Constants.STATE_CONNECTED
+                    debug()
+                }
+            } catch (e: IOException) {
+                Timber.e(e) // Log error
             }
         }
 

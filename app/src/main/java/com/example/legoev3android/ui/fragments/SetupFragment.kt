@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +24,7 @@ import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.PermissionUtility
 import com.example.legoev3android.utils.SelectedDevice
+import timber.log.Timber
 
 class SetupFragment : Fragment(R.layout.fragment_setup) {
 
@@ -68,7 +70,6 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                 textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
             else // Permissions were granted
                 findAvailableDevices()
-
         }
 
     // Used to launch and receive searches for available bluetooth devices
@@ -116,7 +117,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             textConstrainBottomToRv.text = "Searching for Bluetooth Devices"
             val pairedDevices = adapter.bondedDevices
             pairedDevices.forEach { device ->
-                println("Bonded device found")
+
                 deviceList.add(device)
                 rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
             }
@@ -130,18 +131,13 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
      */
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Register for broadcasts when a device is discovered
-        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        requireActivity().registerReceiver(receiver, filter)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSetupBinding.bind(view)
 
+        // Register for broadcasts when a device is discovered
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        requireActivity().registerReceiver(receiver, filter)
         // Binding is asserted non null here - binding is only made null in
         // onDestroy to prevent memory leaks
         textConstraintToSubtext = binding!!.permissionText
@@ -192,6 +188,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // This is necessary to prevent memory leaks
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().unregisterReceiver(receiver) // Unregister Intent receiver
         binding = null
     }
 
