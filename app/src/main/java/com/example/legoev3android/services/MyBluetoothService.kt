@@ -7,6 +7,9 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.util.Log
 import com.example.legoev3android.utils.Constants
+import com.example.legoev3android.utils.MotorCommandFactory
+import com.example.legoev3android.utils.MotorUtil
+import com.example.legoev3android.utils.Motors
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
@@ -89,27 +92,7 @@ class MyBluetoothService(
         //   private val mmBuffer: ByteArray = ByteArray(20)
         // TODO Check documentation to fill this in later
         fun moveMotor() {
-            val mmBuffer = ByteArray(20) // 0x12 Command Length
-            mmBuffer[0] = (20 - 2).toByte()
-            mmBuffer[1] = 0
-            mmBuffer[2] = 34
-            mmBuffer[3] = 12
-            mmBuffer[4] = (0x80).toByte()
-            mmBuffer[5] = 0
-            mmBuffer[6] = 0
-            mmBuffer[7] = (0xae).toByte()
-            mmBuffer[8] = 0
-            mmBuffer[9] = (0x06).toByte()
-            mmBuffer[10] = (0x81).toByte()
-            mmBuffer[11] = (0x32).toByte()
-            mmBuffer[12] = 0
-            mmBuffer[13] = (0x82).toByte()
-            mmBuffer[14] = (0x84).toByte()
-            mmBuffer[15] = (0x03).toByte()
-            mmBuffer[16] = (0x82).toByte()
-            mmBuffer[17] = (0xB4).toByte()
-            mmBuffer[18] = (0x00).toByte()
-            mmBuffer[19] = 1
+            val mmBuffer = MotorUtil.generateBytes()
             try {
                 mmOutStream.write(mmBuffer)
                 mmOutStream.flush()

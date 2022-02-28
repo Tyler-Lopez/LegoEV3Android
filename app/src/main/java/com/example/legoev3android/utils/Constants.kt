@@ -11,7 +11,24 @@ object Constants {
     const val STATE_CONNECTING = 2 // Initiating ongoing connection
     const val STATE_CONNECTED = 3 // Connected to remote device
 
+    // COMMUNICATION TRANSCRIPTION
+    // Motors
+    const val MOTOR_A = 0x01
+    const val MOTOR_B = 0x02
+    const val MOTOR_C = 0x04
+    const val MOTOR_D = 0x08
+
+    // 4.0 Direct Commands
+    const val DIRECT_COMMAND_REPLY = 0x00
+    const val DIRECT_COMMAND_NO_REPLY = 0x80
+
+    // 4.1 Direct Replies
+    const val DIRECT_REPLY = 0x02
+    const val DIRECT_REPLY_ERROR = 0x04
+
+
     // FIRMWARE TRANSCRIPTION
+
 
 
     // 4.7 Program select operations (pg. 45 / 109)
@@ -92,6 +109,7 @@ object Constants {
     const val opOutput_Clr_Count = 0xB2
     const val opOutput_Get_Count = 0xB3
     const val opOutput_Prg_Stop = 0xB4
+
 
     // 4.10 Sound operations (pg. 59 / 109)
     const val opSound = 0x94

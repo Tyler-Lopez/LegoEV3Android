@@ -34,7 +34,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     device?.run {
                         if (!device.uuids.isNullOrEmpty())
                             device.uuids.forEach {
-                                if ("${it.uuid}" == Constants.ROBOT_UUID) {
+                                println(it.uuid)
+                                if ("${it.uuid}".uppercase() == Constants.ROBOT_UUID) {
                                     if (device.bondState == BluetoothDevice.BOND_NONE) {
                                         println("BOND STATE FOUND TO BE NONE, CREATE BOND")
                                         device.createBond()
@@ -48,6 +49,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     binding?.centeredText?.text = "This is not a Lego EV3."
                 }
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
+                    // TO-DO
+                    // ADD SOMETHING FOR THE IS BONDING STATE TO NOTE YOU NEED TO ACCEPT ON DEVICE!
                     println("HERE BOND STATE CHANGED")
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)

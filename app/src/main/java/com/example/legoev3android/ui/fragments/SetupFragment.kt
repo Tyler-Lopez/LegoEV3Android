@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,9 +21,8 @@ import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentSetupBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
-import com.example.legoev3android.utils.PermissionUtility
+import com.example.legoev3android.utils.PermissionUtil
 import com.example.legoev3android.utils.SelectedDevice
-import timber.log.Timber
 
 class SetupFragment : Fragment(R.layout.fragment_setup) {
 
@@ -152,7 +150,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         centeredText.text = getString(R.string.setup_loading_bluetooth)
 
         // If the user already has given bluetooth permissions
-        if (PermissionUtility.hasPermissions(requireContext()))
+        if (PermissionUtil.hasPermissions(requireContext()))
             findAvailableDevices()
 
         // The user does not yet have permissions
