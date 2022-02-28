@@ -13,6 +13,7 @@ import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.viewmodels.MainViewModel
+import com.example.legoev3android.utils.Constants
 import com.example.legoev3android.utils.SelectedDevice
 
 class ControllerFragment : Fragment(R.layout.fragment_controller) {
@@ -26,18 +27,25 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         override fun onReceive(context: Context, intent: Intent) {
             // If a device was found
             when (intent.action) {
+                // This is always the first action called, retrieves device UUIDs
                 BluetoothDevice.ACTION_UUID -> {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     device?.run {
-                        for (uuid in device.uuids)
-                            binding?.centeredText?.text =
-                                binding?.centeredText?.text.toString() + "\n" + uuid.toString()
+                        if (!device.uuids.isNullOrEmpty())
+                            device.uuids.forEach {
+                                if ("${it.uuid}" == Constants.ROBOT_UUID) {
+                                    if (device.bondState == BluetoothDevice.BOND_NONE) {
+                                        println("BOND STATE FOUND TO BE NONE, CREATE BOND")
+                                        device.createBond()
+                                    } else {
+                                        bluetoothService.connect(SelectedDevice.BluetoothDevice!!)
+                                    }
+                                    return
+                                }
+                            }
                     }
-                    if (device?.bondState == BluetoothDevice.BOND_NONE) {
-                        println("BOND STATE FOUND TO BE NONE, CREATE BOND")
-                        device.createBond()
-                    }
+                    binding?.centeredText?.text = "This is not a Lego EV3."
                 }
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
                     println("HERE BOND STATE CHANGED")
@@ -81,9 +89,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             bluetoothService.moveMotor()
         }
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
-        if (SelectedDevice.BluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED)
-            SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
-        else bluetoothService.connect(SelectedDevice.BluetoothDevice!!)
+        SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
     }
 
     // This is necessary to prevent memory leaks
