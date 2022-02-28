@@ -91,6 +91,9 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         binding?.buttonMotor?.setOnClickListener {
             bluetoothService.moveMotor()
         }
+        binding?.buttonSound?.setOnClickListener {
+            bluetoothService.playSound()
+        }
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
     }

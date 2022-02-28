@@ -31,8 +31,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_success_message"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/button_sound"/>
+        <Button
+            android:id="@+id/button_sound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PLAY SOUND"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_motor"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- TODO: Update blank fragment layout -->

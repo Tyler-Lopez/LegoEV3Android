@@ -23,7 +23,9 @@ class MyBluetoothService(
 
     // Member fields
     private var mConnectThread: ConnectThread? = null
-    private var mConnectedThread: ConnectedThread? = null
+    private var mMotorThread: ConnectedThread? = null
+    private var mSoundThread: ConnectedThread? = null
+
     private var mAdapter: BluetoothAdapter? =
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
             .adapter
@@ -36,15 +38,17 @@ class MyBluetoothService(
         if (mState == Constants.STATE_CONNECTING)
             mConnectThread?.cancel().also { mConnectThread = null }
         // Cancel threads currently running a connection
-        if (mState == Constants.STATE_CONNECTING)
-            mConnectedThread?.cancel().also { mConnectedThread = null }
+        if (mState == Constants.STATE_CONNECTING) {
+            mMotorThread?.cancel().also { mMotorThread = null }
+            mSoundThread?.cancel().also { mSoundThread = null }
+        }
         // Start thread to connect with device
         mConnectThread = ConnectThread(device)
         mConnectThread?.start()
     }
 
     fun destroy() {
-        mConnectedThread?.cancel()
+        mMotorThread?.cancel()
         mConnectThread?.cancel()
         mAdapter = null
         mState = Constants.STATE_NONE
@@ -52,7 +56,31 @@ class MyBluetoothService(
 
     fun moveMotor() {
         if (mState == Constants.STATE_CONNECTED)
-            mConnectedThread?.moveMotor()
+            mMotorThread?.writeToOutput(MotorUtil.generateBytes())
+        else println("ERROR NO LONGER CONNECTED?")
+    }
+    fun playSound() {
+        if (mState == Constants.STATE_CONNECTED) {
+            val buffer = ByteArray(17)
+            buffer[0] = (0x0F).toByte()
+            buffer[1] = 0
+            buffer[2] = 0
+            buffer[3] = 0
+            buffer[4] = (0x80).toByte()
+            buffer[5] = 0
+            buffer[6] = 0
+            buffer[7] = (0x94).toByte()
+            buffer[8] = (0x01).toByte()
+            buffer[9] = (0x81).toByte()
+            buffer[10] = (0x02).toByte()
+            buffer[11] = (0x82).toByte()
+            buffer[12] = (0xE8).toByte()
+            buffer[13] = (0x03).toByte()
+            buffer[14] = (0x82).toByte()
+            buffer[15] = (0xE8).toByte()
+            buffer[16] = (0x03).toByte()
+            mSoundThread?.writeToOutput(buffer)
+        }
         else println("ERROR NO LONGER CONNECTED?")
     }
 
@@ -67,7 +95,8 @@ class MyBluetoothService(
             try {
                 mmSocket?.let { socket ->
                     socket.connect()
-                    mConnectedThread = ConnectedThread(socket)
+                    mMotorThread = ConnectedThread(socket)
+                    mSoundThread = ConnectedThread(socket)
                     mState = Constants.STATE_CONNECTED
                     debug()
                 }
@@ -91,8 +120,7 @@ class MyBluetoothService(
 
         //   private val mmBuffer: ByteArray = ByteArray(20)
         // TODO Check documentation to fill this in later
-        fun moveMotor() {
-            val mmBuffer = MotorUtil.generateBytes()
+        fun writeToOutput(mmBuffer: ByteArray) {
             try {
                 mmOutStream.write(mmBuffer)
                 mmOutStream.flush()
