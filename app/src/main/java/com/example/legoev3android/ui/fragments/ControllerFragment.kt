@@ -13,8 +13,7 @@ import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.viewmodels.MainViewModel
-import com.example.legoev3android.utils.Constants
-import com.example.legoev3android.utils.SelectedDevice
+import com.example.legoev3android.utils.*
 
 class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
@@ -88,8 +87,53 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             }
         }
 
-        binding?.buttonMotor?.setOnClickListener {
-            bluetoothService.moveMotor()
+        binding?.buttonMotorUp?.setOnClickListener {
+            for (motor in Motor.values())
+                bluetoothService
+                    .moveMotor(
+                        MotorCommandFactory
+                            .create(
+                                motor,
+                                speedPercent = 100,
+                                degree = 90
+                            )
+                    )
+        }
+        binding?.buttonMotorLeft?.setOnClickListener {
+            for (motor in Motor.values())
+                bluetoothService
+                    .moveMotor(
+                        MotorCommandFactory
+                            .create(
+                                motor,
+                                speedPercent = 100,
+                                degree = 180
+                            )
+                    )
+        }
+        binding?.buttonMotorRight?.setOnClickListener {
+            for (motor in Motor.values())
+                bluetoothService
+                    .moveMotor(
+                        MotorCommandFactory
+                            .create(
+                                motor,
+                                speedPercent = 100,
+                                degree = 0
+                            )
+                    )
+        }
+        binding?.buttonMotorDown?.setOnClickListener {
+            for (motor in Motor.values())
+            bluetoothService
+                .moveMotor(
+                    MotorCommandFactory
+                        .create(
+                            motor,
+                            speedPercent = 100,
+                            degree = 270
+                        )
+                )
         }
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()

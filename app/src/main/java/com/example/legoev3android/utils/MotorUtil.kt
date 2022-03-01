@@ -1,7 +1,7 @@
 package com.example.legoev3android.utils
 
 object MotorUtil {
-    public fun generateBytes():ByteArray {
+    fun generateBytes():ByteArray {
 
         // A byte is 8 bits
         // Total is 20 - 2 = 18

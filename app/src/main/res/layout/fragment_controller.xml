@@ -21,14 +21,41 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/button_motor"
+            app:layout_constraintBottom_toTopOf="@id/button_motor_up"
             />
         <Button
-            android:id="@+id/button_motor"
+            android:id="@+id/button_motor_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MOVE MOTOR"
+            android:text="MOVE MOTOR UP"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_success_message"
+            app:layout_constraintEnd_toStartOf="@id/button_motor_left"
+            app:layout_constraintBottom_toTopOf="@id/button_sound"/>
+        <Button
+            android:id="@+id/button_motor_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MOVE MOTOR LEFT"
+            app:layout_constraintStart_toEndOf="@id/button_motor_up"
+            app:layout_constraintTop_toBottomOf="@id/tv_success_message"
+            app:layout_constraintEnd_toStartOf="@id/button_motor_right"
+            app:layout_constraintBottom_toTopOf="@id/button_sound"/>
+        <Button
+            android:id="@+id/button_motor_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MOVE MOTOR RIGHT"
+            app:layout_constraintStart_toEndOf="@id/button_motor_left"
+            app:layout_constraintTop_toBottomOf="@id/tv_success_message"
+            app:layout_constraintEnd_toStartOf="@id/button_motor_down"
+            app:layout_constraintBottom_toTopOf="@id/button_sound"/>
+        <Button
+            android:id="@+id/button_motor_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MOVE MOTOR DOWN"
+            app:layout_constraintStart_toEndOf="@id/button_motor_right"
             app:layout_constraintTop_toBottomOf="@id/tv_success_message"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/button_sound"/>
@@ -38,7 +65,7 @@
             android:layout_height="wrap_content"
             android:text="PLAY SOUND"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/button_motor"
+            app:layout_constraintTop_toBottomOf="@id/button_motor_down"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 

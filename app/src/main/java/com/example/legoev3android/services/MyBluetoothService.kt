@@ -5,11 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.util.Log
 import com.example.legoev3android.utils.Constants
-import com.example.legoev3android.utils.MotorCommandFactory
-import com.example.legoev3android.utils.MotorUtil
-import com.example.legoev3android.utils.Motors
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
@@ -54,9 +50,9 @@ class MyBluetoothService(
         mState = Constants.STATE_NONE
     }
 
-    fun moveMotor() {
+    fun moveMotor(bytes: ByteArray) {
         if (mState == Constants.STATE_CONNECTED)
-            mMotorThread?.writeToOutput(MotorUtil.generateBytes())
+            mMotorThread?.writeToOutput(bytes)
         else println("ERROR NO LONGER CONNECTED?")
     }
     fun playSound() {
