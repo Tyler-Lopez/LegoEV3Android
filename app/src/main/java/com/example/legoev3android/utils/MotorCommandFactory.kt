@@ -1,13 +1,14 @@
 package com.example.legoev3android.utils
 
-import java.lang.Math.abs
 
+// Return a ByteArray representing a command to a given motor
 object MotorCommandFactory {
     fun create(
         motor: Motor,
         speedPercent: Int,
         degree: Int // 90 degrees is forward, 180 is left, 360/0 is right
     ): ByteArray {
+
         val commandList = mutableListOf<Byte>()
         commandList.add(0x0E) // bb
         commandList.add(0x00) // bb
@@ -16,7 +17,7 @@ object MotorCommandFactory {
         commandList.add(Constants.DIRECT_COMMAND_NO_REPLY.toByte()) // tt
         commandList.add(0x00) // hh
         commandList.add(0x00) // hh
-        // HANDLE MOVING LEFT
+
         commandList.add(Constants.opOutput_Time_Speed.toByte()) // cc
         commandList.add(0x00) // cc
 
@@ -48,17 +49,18 @@ object MotorCommandFactory {
                 -1
             else
                 1
-
         commandList.add(
-            (speedPercent * forwardBackwardsAdjustment * degreePowerAdjustment).toInt().toByte()
+            (speedPercent * forwardBackwardsAdjustment * degreePowerAdjustment)
+                .toInt()
+                .toByte()
         )
         commandList.add(0x00) // No STEP 1 - full speed from start
 
         commandList.add(0x0A) // 10 ms
 
-        commandList.add((0x00).toByte())
+        commandList.add(0x00) // No STEP 3 - full speed at end
 
-        commandList.add(0x00) // No break
+        commandList.add(0x00) // No breaking at end, instead float
 
         return commandList.toByteArray()
     }
