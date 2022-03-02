@@ -1,17 +1,20 @@
 package com.example.legoev3android.ui.fragments
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.service.controls.Control
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.services.MyBluetoothService
+import com.example.legoev3android.ui.ControlsLoop
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.*
 
@@ -23,6 +26,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
 
     private val receiver = object : BroadcastReceiver() {
+        @SuppressLint("MissingPermission")
         override fun onReceive(context: Context, intent: Intent) {
             // If a device was found
             when (intent.action) {
@@ -77,16 +81,23 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         requireActivity().registerReceiver(receiver, filterBond)
     }
 
+    lateinit var controls: ControlsLoop
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
+
+
         bluetoothService = MyBluetoothService(requireContext()) {
             requireActivity().runOnUiThread {
                 binding?.centeredText?.visibility = View.GONE
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
             }
-        }
 
+        }
+        ControlsLoop(bluetoothService, binding!!.joystickView).start()
+
+/*
         binding?.buttonMotorUp?.setOnClickListener {
             for (motor in Motor.values())
                 bluetoothService
@@ -135,11 +146,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                         )
                 )
         }
+
+
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()
         }
+
+ */
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
+
     }
 
     // This is necessary to prevent memory leaks

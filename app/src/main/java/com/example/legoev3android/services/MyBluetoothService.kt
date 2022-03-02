@@ -1,5 +1,6 @@
 package com.example.legoev3android.services
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
@@ -80,6 +81,7 @@ class MyBluetoothService(
         else println("ERROR NO LONGER CONNECTED?")
     }
 
+    @SuppressLint("MissingPermission")
     private inner class ConnectThread(device: BluetoothDevice) : Thread() {
 
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
