@@ -4,7 +4,7 @@ import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.utils.Motor
 import com.example.legoev3android.utils.MotorCommandFactory
 
-class ControlsLoop(
+class JoystickLoopThread(
     val bluetoothService: MyBluetoothService,
     private val joystickView: JoystickView
 ) : Thread() {

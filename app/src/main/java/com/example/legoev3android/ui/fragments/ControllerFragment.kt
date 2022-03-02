@@ -7,14 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.service.controls.Control
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.services.MyBluetoothService
-import com.example.legoev3android.ui.ControlsLoop
+import com.example.legoev3android.ui.JoystickLoopThread
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.*
 
@@ -81,7 +80,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         requireActivity().registerReceiver(receiver, filterBond)
     }
 
-    lateinit var controls: ControlsLoop
+    lateinit var joystickThread: JoystickLoopThread
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,7 +94,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             }
 
         }
-        ControlsLoop(bluetoothService, binding!!.joystickView).start()
+        JoystickLoopThread(bluetoothService, binding!!.joystickView).start()
 
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()
