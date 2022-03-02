@@ -19,6 +19,7 @@ class JoystickView(
 
     private val joystick: Joystick = Joystick()
     private lateinit var canvas: Canvas
+
     // Set in onDraw
     private var centerX = 0f
     private var centerY = 0f
@@ -36,17 +37,13 @@ class JoystickView(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return when (event?.action) {
             ACTION_DOWN -> {
-                if (joystick.isPressed(event.x, event.y)) {
-                    joystick.update(event.x - centerX, event.y - centerY)
-                    update()
-                }
+                joystick.update(event.x - centerX, event.y - centerY)
+                update()
                 true
             }
             ACTION_MOVE -> {
-                if (joystick.isPressed(event.x, event.y)) {
                     joystick.update(event.x - centerX, event.y - centerY)
                     update()
-                }
                 true
             }
             ACTION_UP -> {

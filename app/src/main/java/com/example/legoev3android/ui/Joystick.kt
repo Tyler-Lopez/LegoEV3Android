@@ -4,15 +4,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import com.example.legoev3android.utils.getDistance
-import kotlin.math.abs
-import kotlin.math.atan
-import kotlin.math.atan2
-import kotlin.math.hypot
+import kotlin.math.*
 
 class Joystick {
 
     private val outerCircleRadius: Float = 150f
-    val innerCircleRadius: Float = 75f
+    val innerCircleRadius: Float = 50f
     private var innerCirclePositionX = 0f
     private var innerCirclePositionY = 0f
 
@@ -29,16 +26,32 @@ class Joystick {
     }
 
     fun update(x: Float, y: Float) {
-        innerCirclePositionX = x
-        innerCirclePositionY = y
+        // If the new value is within the circle
+        if (x in -outerCircleRadius..outerCircleRadius &&
+            y in -outerCircleRadius..outerCircleRadius
+        ) {
+            innerCirclePositionX = x
+            innerCirclePositionY = y
+        } else if (
+            x in (-outerCircleRadius - 50f)..(outerCircleRadius + 50f) &&
+            y in (-outerCircleRadius - 50f)..(outerCircleRadius + 50f)
+        ) {
+            // https://en.wikipedia.org/wiki/Atan2
+            var value = atan2(y, x).toDouble()
+            innerCirclePositionX = outerCircleRadius * cos(value).toFloat()
+            innerCirclePositionY = outerCircleRadius * sin(value).toFloat()
+        }
     }
 
-    fun getPower() = (maxOf(abs(innerCirclePositionX), abs(innerCirclePositionY)) / outerCircleRadius) * 100f
+    fun getPower() =
+        (maxOf(abs(innerCirclePositionX), abs(innerCirclePositionY)) / outerCircleRadius) * 100f
 
     fun getDegree(): Double {
-        var value = Math.toDegrees(atan2(-1f * innerCirclePositionY, innerCirclePositionX).toDouble())
+        var value =
+            Math.toDegrees(atan2(-1f * innerCirclePositionY, innerCirclePositionX).toDouble())
         return (value + 360) % 360
     }
+
     private fun drawOuterCircle(canvas: Canvas) {
 
         val outerPaint = Paint()
@@ -54,7 +67,7 @@ class Joystick {
     }
 
     private fun drawInnerCircle(canvas: Canvas) {
-    //    println("Drawing inner circle position x is $innerCirclePositionX")
+        //    println("Drawing inner circle position x is $innerCirclePositionX")
         val innerPaint = Paint()
         innerPaint.color = Color.RED
 
