@@ -69,21 +69,40 @@ class Joystick(
 
     private fun drawOuterCircle(canvas: Canvas) {
         val outerPaint = Paint()
+        val outerStroke = Paint()
+        outerStroke.style = Paint.Style.STROKE
+        outerStroke.strokeWidth = 20f
+        outerStroke.shader = RadialGradient(
+            centerX,
+            centerY,
+            20f,
+            intArrayOf(Color.rgb(255, 217, 0),
+                Color.rgb(143, 110, 3)),
+            floatArrayOf(0f, 20f),
+            Shader.TileMode.MIRROR
+        )
+        outerStroke.maskFilter = BlurMaskFilter(0.5f, BlurMaskFilter.Blur.INNER)
+
         outerPaint.shader = RadialGradient(
             centerX,
             centerY,
             outerCircleRadius,
-            intArrayOf(Color.rgb(133, 133, 133),
-                Color.rgb(97, 97, 97)),
+            intArrayOf(Color.rgb(111, 111, 111),
+                Color.rgb(77, 77, 77)),
             floatArrayOf(0f, outerCircleRadius),
             Shader.TileMode.MIRROR
         )
-
         canvas.drawCircle(
             centerX,
             centerY,
             outerCircleRadius,
             outerPaint
+        )
+        canvas.drawCircle(
+            centerX,
+            centerY,
+            outerCircleRadius,
+            outerStroke
         )
     }
 
