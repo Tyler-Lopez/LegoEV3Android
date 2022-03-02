@@ -97,62 +97,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         }
         ControlsLoop(bluetoothService, binding!!.joystickView).start()
 
-/*
-        binding?.buttonMotorUp?.setOnClickListener {
-            for (motor in Motor.values())
-                bluetoothService
-                    .moveMotor(
-                        MotorCommandFactory
-                            .create(
-                                motor,
-                                speedPercent = 100,
-                                degree = 90
-                            )
-                    )
-        }
-        binding?.buttonMotorLeft?.setOnClickListener {
-            for (motor in Motor.values())
-                bluetoothService
-                    .moveMotor(
-                        MotorCommandFactory
-                            .create(
-                                motor,
-                                speedPercent = 100,
-                                degree = 180
-                            )
-                    )
-        }
-        binding?.buttonMotorRight?.setOnClickListener {
-            for (motor in Motor.values())
-                bluetoothService
-                    .moveMotor(
-                        MotorCommandFactory
-                            .create(
-                                motor,
-                                speedPercent = 100,
-                                degree = 0
-                            )
-                    )
-        }
-        binding?.buttonMotorDown?.setOnClickListener {
-            for (motor in Motor.values())
-            bluetoothService
-                .moveMotor(
-                    MotorCommandFactory
-                        .create(
-                            motor,
-                            speedPercent = 100,
-                            degree = 270
-                        )
-                )
-        }
-
-
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()
         }
 
- */
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
 

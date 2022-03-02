@@ -26,7 +26,7 @@ class ControlsLoop(
                                 )
                         )
                 }
-            sleep(12)
+            sleep(15)
         }
     }
 }

@@ -42,8 +42,8 @@ class JoystickView(
                 true
             }
             ACTION_MOVE -> {
-                    joystick.update(event.x - centerX, event.y - centerY)
-                    update()
+                joystick.update(event.x - centerX, event.y - centerY)
+                update()
                 true
             }
             ACTION_UP -> {
@@ -55,11 +55,11 @@ class JoystickView(
         }
     }
 
-    fun update() {
-        invalidate() // Force view to redraw itself (not the best way to do this?)
+    // Force view to redraw itself (not the best way to do this?)
+    private fun update() {
+        invalidate()
     }
 
     fun getPower() = joystick.getPower()
     fun getDegree() = joystick.getDegree()
-
 }
