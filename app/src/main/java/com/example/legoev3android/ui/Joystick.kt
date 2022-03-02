@@ -1,12 +1,14 @@
 package com.example.legoev3android.ui
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.content.Context
+import android.graphics.*
+import com.example.legoev3android.R
 import com.example.legoev3android.utils.getDistance
 import kotlin.math.*
 
-class Joystick {
+class Joystick(
+    val context: Context
+) {
 
     private val outerCircleRadius: Float = 150f
     private val innerCircleRadius: Float = 50f
@@ -67,7 +69,15 @@ class Joystick {
 
     private fun drawOuterCircle(canvas: Canvas) {
         val outerPaint = Paint()
-        outerPaint.color = Color.BLACK
+        outerPaint.shader = RadialGradient(
+            centerX,
+            centerY,
+            outerCircleRadius,
+            intArrayOf(Color.rgb(133, 133, 133),
+                Color.rgb(97, 97, 97)),
+            floatArrayOf(0f, outerCircleRadius),
+            Shader.TileMode.MIRROR
+        )
 
         canvas.drawCircle(
             centerX,
@@ -78,14 +88,12 @@ class Joystick {
     }
 
     private fun drawInnerCircle(canvas: Canvas) {
-        val innerPaint = Paint()
-        innerPaint.color = Color.RED
-
-        canvas.drawCircle(
-            centerX + (innerCirclePositionX * 0.8f),
-            centerY + (innerCirclePositionY * 0.8f),
-            innerCircleRadius,
-            innerPaint
+        val mMarker = BitmapFactory.decodeResource(context.resources, R.drawable.joystick_image)
+        canvas.drawBitmap(
+            mMarker,
+            centerX + (innerCirclePositionX * 0.4f) - (mMarker.width / 2f),
+            centerY + (innerCirclePositionY * 0.4f) - (mMarker.height / 2f),
+            Paint()
         )
     }
 }

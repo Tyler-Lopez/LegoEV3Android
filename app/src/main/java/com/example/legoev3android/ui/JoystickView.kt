@@ -17,7 +17,7 @@ class JoystickView(
     attrs: AttributeSet
 ) : View(context, attrs) {
 
-    private val joystick: Joystick = Joystick()
+    private val joystick: Joystick = Joystick(context)
     private lateinit var canvas: Canvas
 
     // Set in onDraw
