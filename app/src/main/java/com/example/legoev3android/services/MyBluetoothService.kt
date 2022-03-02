@@ -52,8 +52,9 @@ class MyBluetoothService(
     }
 
     fun moveMotor(bytes: ByteArray) {
-        if (mState == Constants.STATE_CONNECTED)
+        if (mState == Constants.STATE_CONNECTED) {
             mMotorThread?.writeToOutput(bytes)
+        }
         else println("ERROR NO LONGER CONNECTED?")
     }
     fun playSound() {

@@ -36,7 +36,6 @@ class Joystick {
     fun getPower() = (maxOf(abs(innerCirclePositionX), abs(innerCirclePositionY)) / outerCircleRadius) * 100f
 
     fun getDegree(): Double {
-        println("Y is $innerCirclePositionY X is $innerCirclePositionX")
         var value = Math.toDegrees(atan2(-1f * innerCirclePositionY, innerCirclePositionX).toDouble())
         return (value + 360) % 360
     }

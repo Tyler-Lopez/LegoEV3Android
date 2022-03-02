@@ -14,7 +14,6 @@ class ControlsLoop(
             val power = joystickView.getPower()
             val degree = joystickView.getDegree()
         //    println("POWER IS $power")
-            println("Degree is $degree")
             if (power > 0f)
                 for (motor in Motor.values()) {
                     bluetoothService
@@ -27,7 +26,7 @@ class ControlsLoop(
                                 )
                         )
                 }
-            sleep(20)
+            sleep(12)
         }
     }
 }

@@ -6,7 +6,7 @@ object MotorCommandFactory {
     fun create(
         motor: Motor,
         speedPercent: Int,
-        degree: Int
+        degree: Int // 90 degrees is forward, 180 is left, 360/0 is right
     ): ByteArray {
         val commandList = mutableListOf<Byte>()
         commandList.add(0x0E) // bb
@@ -36,7 +36,7 @@ object MotorCommandFactory {
                 }
                 Side.RIGHT -> {
                     if (degree <= 90 || degree > 270) {
-                        val tmp = if (degree <= 90) 360 else 0 + degree
+                        val tmp = (if (degree <= 91) 360 else 0) + degree
                         kotlin.math.abs(360 - tmp) / 90.0
                     }
                     else
@@ -54,7 +54,7 @@ object MotorCommandFactory {
         )
         commandList.add(0x00) // No STEP 1 - full speed from start
 
-        commandList.add(0x14) // 20 ms
+        commandList.add(0x0A) // 10 ms
 
         commandList.add((0x00).toByte())
 
