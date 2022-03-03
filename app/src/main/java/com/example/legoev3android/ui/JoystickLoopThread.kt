@@ -15,7 +15,8 @@ class JoystickLoopThread(
             val degree = joystickView.getDegree()
         //    println("POWER IS $power")
             if (power > 0f)
-                for (motor in Motor.values()) {
+                // Motor B and C control movement
+                for (motor in listOf(Motor.B, Motor.C)) {
                     bluetoothService
                         .moveMotor(
                             MotorCommandFactory

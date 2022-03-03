@@ -43,6 +43,7 @@ object MotorCommandFactory {
                     else
                         1.0
                 }
+                Side.NONE -> 1.0
             }
         val forwardBackwardsAdjustment =
             if (degree in 181..360)

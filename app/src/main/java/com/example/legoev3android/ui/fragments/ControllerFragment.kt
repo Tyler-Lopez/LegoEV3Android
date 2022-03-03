@@ -100,6 +100,14 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             bluetoothService.playSound()
         }
 
+        // TEMPORARY TO CONTROL A MEDIUM MOTOR ON D
+        binding?.buttonMediumClose?.setOnClickListener {
+            bluetoothService.moveMotor(MotorCommandFactory.create(motor = Motor.D, 50, 20))
+        }
+        binding?.buttonMediumOpen?.setOnClickListener {
+            bluetoothService.moveMotor(MotorCommandFactory.create(motor = Motor.D, 50, 340))
+        }
+
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
 
