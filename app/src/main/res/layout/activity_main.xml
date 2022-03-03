@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity"
-    android:background="@drawable/metal_background"
-    android:padding="16dp">
+
+    >
+
 
     <FrameLayout
         android:id="@+id/flFragment"
@@ -27,5 +28,14 @@
             />
 
     </FrameLayout>
+
+    <com.example.legoev3android.ui.TopBorder
+        android:id="@+id/top_border_stroke"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
