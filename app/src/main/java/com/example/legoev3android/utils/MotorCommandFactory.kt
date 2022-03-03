@@ -28,20 +28,23 @@ object MotorCommandFactory {
             when (motor.side) {
                 Side.LEFT -> {
                     // Turn left = Less power on left side
-                    if (degree in 91..270) {
-                        kotlin.math.abs(180 - degree) / 90.0
-                    // Turn right = Full power on left side
-                    } else {
-                        1.0
+                    when (degree) {
+                        // ROBOT SHOULD TURN LEFT TO SOME DEGREE
+                        in 91..160 -> (160.0 - degree) / 70.0 // Decrease (+) power as approaches 140 degrees
+                        in 161..180 -> -1.0 * (degree - 160.0) / (180.0 - 160.0) // Increase (-) power as approaches 180 degrees
+                        in 181..200 -> -1.0 * ((200.0 - degree) / 70.0) // Decrease (-) power as approaches 225 degrees
+                        in 201..269 -> (degree - 200.0) / (269.0 - 200.0) // Increase (+) power as approaches 270 degrees
+                        else -> 1.0
                     }
                 }
                 Side.RIGHT -> {
-                    if (degree <= 90 || degree > 270) {
-                        val tmp = (if (degree <= 91) 360 else 0) + degree
-                        kotlin.math.abs(360 - tmp) / 90.0
+                    when (degree) {
+                        in 271..290 -> (290.0 - degree) / 70.0 // Decrease (+) power as approaches 140 degrees
+                        in 291..360 -> -1.0 * ((degree - 290.0) / (360.0 - 290.0)) // Increase (-) power as approaches 360 degrees
+                        in 0..70 -> -1.0 * ((70.0 - degree) / 70.0) // Decrease (-) power as approaches 45 degrees
+                        in 71..89 -> (degree - 70.0) / (89.0 - 70.0) // Increase (+) power as approaches 270 degrees
+                        else -> 1.0
                     }
-                    else
-                        1.0
                 }
                 Side.NONE -> 1.0
             }
