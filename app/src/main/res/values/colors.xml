@@ -4,7 +4,10 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="red_700">#FFad0000</color>
-    <color name="red_500">#FF9C0000</color>
+    <color name="red_transparent">#80ad0000</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="red_500">#9C0000</color>
     <color name="grey">#FFDEDEDE</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>

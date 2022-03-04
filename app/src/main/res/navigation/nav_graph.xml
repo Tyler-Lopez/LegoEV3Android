@@ -10,7 +10,11 @@
         android:label="SetupFragment" >
         <action
             android:id="@+id/action_setupFragment_to_controllerFragment"
-            app:destination="@id/controllerFragment" />
+            app:destination="@id/controllerFragment"
+            app:enterAnim="@anim/enter_slide_left"
+            app:exitAnim="@anim/exit_slide_left"
+            app:popEnterAnim="@anim/enter_slide_right"
+            app:popExitAnim="@anim/slide_right"/>
     </fragment>
     <fragment
         android:id="@+id/controllerFragment"

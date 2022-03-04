@@ -7,7 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.transition.Slide
+import android.transition.Transition
+import android.transition.TransitionManager
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.legoev3android.R
@@ -78,6 +83,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         val filterBond = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         requireActivity().registerReceiver(receiver, filter)
         requireActivity().registerReceiver(receiver, filterBond)
+
     }
 
     lateinit var joystickThread: JoystickLoopThread
@@ -86,10 +92,19 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
 
+        val transition = Slide()
+        transition.slideEdge = Gravity.END
+        transition.addTarget(binding?.cardView)
+        transition.duration = 600
+
 
         bluetoothService = MyBluetoothService(requireContext()) {
             requireActivity().runOnUiThread {
-                binding?.centeredText?.visibility = View.GONE
+                TransitionManager.beginDelayedTransition(
+                    binding?.root as ViewGroup?,
+                    transition
+                )
+                binding?.cardView?.visibility = View.GONE
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
             }
 
