@@ -50,9 +50,9 @@ object MotorCommandFactory {
             }
         val forwardBackwardsAdjustment =
             if (degree in 181..360)
-                -1
-            else
                 1
+            else
+                -1
         commandList.add(
             (speedPercent * forwardBackwardsAdjustment * degreePowerAdjustment)
                 .toInt()

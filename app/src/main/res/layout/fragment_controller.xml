@@ -29,8 +29,20 @@
                 android:layout_width="350dp"
                 android:layout_height="350dp"
                 android:layout_centerInParent="true" />
-            
+
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/motor_information_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="Motor Information From BT"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toEndOf="@id/relative_layout_joystick"
+            app:layout_constraintTop_toTopOf="parent"/>
+
 
         <Button
             android:id="@+id/button_sound"

@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.transition.Slide
 import android.transition.Transition
 import android.transition.TransitionManager
@@ -87,6 +89,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     }
 
     lateinit var joystickThread: JoystickLoopThread
+
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -98,7 +101,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         transition.duration = 600
 
 
-        bluetoothService = MyBluetoothService(requireContext()) {
+        bluetoothService = MyBluetoothService(requireContext(), Handler(Looper.getMainLooper())) {
             requireActivity().runOnUiThread {
                 TransitionManager.beginDelayedTransition(
                     binding?.root as ViewGroup?,
@@ -106,6 +109,12 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 )
                 binding?.cardView?.visibility = View.GONE
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
+                println("hereeee")
+                viewModel.registerForDeviceInformation(bluetoothService) {
+                    requireActivity().runOnUiThread {
+                        binding?.motorInformationTextview?.text = it
+                    }
+                }
             }
 
         }
