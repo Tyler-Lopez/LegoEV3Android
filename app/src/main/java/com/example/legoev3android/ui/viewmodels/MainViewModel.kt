@@ -34,10 +34,13 @@ class MainViewModel @Inject constructor() : ViewModel() {
         // https://developer.android.com/topic/libraries/architecture/coroutines
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                while (true) {
                     println("Reading information")
                     bluetoothService.readDeviceInformation {
                         println("here")
                         callback(it)
+                    }
+                    delay(1000)
                 }
             }
         }

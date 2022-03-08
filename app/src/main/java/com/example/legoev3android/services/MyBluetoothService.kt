@@ -14,6 +14,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.*
 import android.os.Handler
+import java.nio.ByteBuffer
 
 class MyBluetoothService(
     val context: Context,
@@ -67,7 +68,7 @@ class MyBluetoothService(
             buffer[1] = 0
             buffer[2] = 0
             buffer[3] = 0
-            buffer[4] = 0x00 // Constants.DIRECT_COMMAND_REPLY.toByte()
+            buffer[4] = Constants.DIRECT_COMMAND_REPLY.toByte()
             buffer[5] = 0x04 // 4 bytes?
             buffer[6] = 0x00
             buffer[7] = Constants.opInput_Device.toByte()
@@ -150,21 +151,15 @@ class MyBluetoothService(
         val MESSAGE_READ: Int = 0
 
 
-
         fun readInput(
             mmBuffer: ByteArray,
             callback: (String) -> Unit
         ) {
-            var numBytes: Int
-                mmOutStream.write(mmBuffer)
-            val readMsg = handler.obtainMessage(
-                MESSAGE_READ, 1, -1,
-                mmBuffer)
-            readMsg.also {
-                    println(mmBuffer.joinToString { "$it " })
-                    println(it.data)
-                    callback(readMsg.toString())
-                }
+            var reply = ByteArray(24)
+            mmOutStream.write(mmBuffer)
+            println(mmInStream.read(reply))
+            println("REPLY IS " + ByteBuffer.wrap(reply.copyOfRange(5, 9).reversedArray()).float)
+            println(reply.joinToString { it.toString() + " " })
         }
 
         //   private val mmBuffer: ByteArray = ByteArray(20)
