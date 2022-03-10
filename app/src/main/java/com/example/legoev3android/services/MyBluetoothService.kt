@@ -162,8 +162,6 @@ class MyBluetoothService(
             println(reply.joinToString { it.toString() + " " })
         }
 
-        //   private val mmBuffer: ByteArray = ByteArray(20)
-        // TODO Check documentation to fill this in later
         fun writeToOutput(mmBuffer: ByteArray) {
             try {
                 mmOutStream.write(mmBuffer)
