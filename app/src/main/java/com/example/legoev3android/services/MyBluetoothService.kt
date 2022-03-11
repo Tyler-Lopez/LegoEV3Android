@@ -34,7 +34,6 @@ class MyBluetoothService(
             .adapter
     var mState = Constants.STATE_NONE
         private set
-    private var mNewState = Constants.STATE_NONE
 
     fun connect(device: BluetoothDevice) {
         // Cancel thread attempting to make a connection
