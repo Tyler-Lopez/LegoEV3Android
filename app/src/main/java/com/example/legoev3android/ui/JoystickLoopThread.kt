@@ -18,9 +18,9 @@ class JoystickLoopThread(
                 // Motor B and C control movement
                 for (motor in listOf(Motor.B, Motor.C)) {
                     bluetoothService
-                        .moveMotor(
+                        .driveMotor(
                             MotorCommandFactory
-                                .create(
+                                .createDriveMovement(
                                     motor = motor,
                                     speedPercent = power.toInt(),
                                     degree = degree.toInt()

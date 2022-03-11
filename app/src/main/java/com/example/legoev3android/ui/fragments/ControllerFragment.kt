@@ -101,7 +101,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         transition.duration = 600
 
 
-        bluetoothService = MyBluetoothService(requireContext(), Handler(Looper.getMainLooper())) {
+        bluetoothService = MyBluetoothService(requireContext()) {
             requireActivity().runOnUiThread {
                 TransitionManager.beginDelayedTransition(
                     binding?.root as ViewGroup?,
@@ -126,10 +126,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         // TEMPORARY TO CONTROL A MEDIUM MOTOR ON D
         binding?.buttonMediumClose?.setOnClickListener {
-            bluetoothService.moveMotor(MotorCommandFactory.create(motor = Motor.D, 50, 20))
+       //     bluetoothService.moveMotor(MotorCommandFactory.create(motor = Motor.D, 50, 20))
         }
         binding?.buttonMediumOpen?.setOnClickListener {
-            bluetoothService.moveMotor(MotorCommandFactory.create(motor = Motor.D, 50, 340))
+        //    bluetoothService.moveMotor(MotorCommandFactory.create(motor = Motor.D, 50, 340))
         }
 
         binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
