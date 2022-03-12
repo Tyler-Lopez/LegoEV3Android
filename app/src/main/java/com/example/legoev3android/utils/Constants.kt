@@ -18,6 +18,16 @@ object Constants {
     const val MOTOR_C = 0x04
     const val MOTOR_D = 0x08
 
+    const val MOTOR_PORT_A = 0x10
+    const val MOTOR_PORT_B = 0x11
+    const val MOTOR_PORT_C = 0x12
+    const val MOTOR_PORT_D = 0x13
+
+    // Medium Motor Modes
+    const val EV3_MEDIUM_MOTOR_DEGREE = 0x00
+    const val EV3_MEDIUM_MOTOR_ROTATION = 0x00
+    const val EV3_MEDIUM_MOTOR_POWER = 0x000
+
     // 4.0 Direct Commands
     const val DIRECT_COMMAND_REPLY = 0x00
     const val DIRECT_COMMAND_NO_REPLY = 0x80

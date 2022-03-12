@@ -7,10 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.transition.Slide
-import android.transition.Transition
 import android.transition.TransitionManager
 import android.view.Gravity
 import android.view.View
@@ -20,7 +17,6 @@ import androidx.fragment.app.viewModels
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.services.MyBluetoothService
-import com.example.legoev3android.ui.JoystickLoopThread
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.*
 
@@ -88,8 +84,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
     }
 
-    lateinit var joystickThread: JoystickLoopThread
-
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -109,16 +103,12 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 )
                 binding?.cardView?.visibility = View.GONE
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
-                println("hereeee")
-                viewModel.registerForDeviceInformation(bluetoothService) {
-                    requireActivity().runOnUiThread {
-                        binding?.motorInformationTextview?.text = it
-                    }
-                }
             }
-
+            // This should mean the go ahead on we are connected
+            viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickView).start()
         }
-        JoystickLoopThread(bluetoothService, binding!!.joystickView).start()
+
+        //  viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView).start()
 
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()
