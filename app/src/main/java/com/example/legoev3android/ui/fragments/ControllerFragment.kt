@@ -106,6 +106,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             }
             // This should mean the go ahead on we are connected
             viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickView).start()
+            viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView).start()
+
         }
 
         //  viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView).start()

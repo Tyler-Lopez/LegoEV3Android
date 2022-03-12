@@ -56,7 +56,7 @@ object MotorCommandFactory {
         commandList.add(0x00) // cc
         commandList.add(motor.command.toByte()) // Select motors
         commandList.add((0x81).toByte()) // Percent represent
-        commandList.add((((speedPercent * 0.8f).toInt()).times(if (side == Side.LEFT) 1 else -1)).toByte())
+        commandList.add((((speedPercent * 0.5f).toInt()).times(if (side == Side.LEFT) 1 else -1)).toByte())
         commandList.add(0x00) // No STEP 1 - full speed from start
         commandList.add(0x82.toByte()) // "Encoded as 2 bytes to follow"?
         commandList.add(0x32.toByte()) // 100 ms in Little Endian

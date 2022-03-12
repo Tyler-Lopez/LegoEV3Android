@@ -190,51 +190,47 @@ class MainViewModel @Inject constructor() : ViewModel() {
                 }
             }
             println("Left max found as $leftMax Right max found as $rightMax")
-            /*
-                while (true) {
 
-                    val power = joystickView.getPower()
-                    val side =
-                        when (joystickView.getDegree().toInt()) {
-                            in 100..260 -> Side.LEFT
-                            in 0..80, in 280..360 -> Side.RIGHT
-                            else -> Side.NONE
-                        }
+            // This loop is what actually controls driving, based on left and right max
+            while (true) {
+                val power = joystickView.getPower()
+                val side =
+                    when (joystickView.getDegree().toInt()) {
+                        in 100..260 -> Side.LEFT
+                        in 0..80, in 280..360 -> Side.RIGHT
+                        else -> Side.NONE
+                    }
 
-                    println("$power $side $stalledSide $lastSteerDegree")
+                println("$power $side $stalledSide $lastSteerDegree")
 
 
-                    // If the motor is stalled in this direction
-                    if (side == Side.NONE || side == stalledSide || power < 5f) {
-                        // Check back in 15 ms
-                        println("here")
-                        sleep(15)
-                    } else {
-                        // Read the current motor degree
-                        runBlocking {
-                            println("HERE")
-                            bluetoothService
-                                .read(
-                                    MotorCommandFactory
-                                        .readMotor(
-                                            Motor.A,
-                                            MotorMode.DEGREE
-                                        )
-                                )
-                                {
-                                    println("Read degree as $it")
-                                    val difference: Int =
-                                        (kotlin.math.abs(
-                                            lastSteerDegree?.minus(it) ?: 10f
-                                        )).toInt()
-                                    lastSteerDegree = it
+                // If the motor is stalled in this direction
+                if (side == Side.NONE || side == stalledSide || power < 5f) {
+                    // Check back in 15 ms
+                    println("here")
+                    sleep(15)
+                } else {
+                    // Read the current motor degree
+                    runBlocking {
+                        println("HERE")
+                        bluetoothService
+                            .read(
+                                MotorCommandFactory
+                                    .readMotor(
+                                        Motor.A,
+                                        MotorMode.DEGREE
+                                    )
+                            )
+                            {
+                                println("Read degree as $it")
+                                if (it != null) {
+                                    stalledSide = if (kotlin.math.abs(it - leftMax) < 5) {
+                                        Side.LEFT
+                                    } else if (kotlin.math.abs(it - rightMax) < 5) {
+                                        Side.RIGHT
+                                    } else Side.NONE
 
-                                    val sameSideAsLast = side == lastSide
-                                    lastSide = side
-                                    // NOT STALLED
-                                    if (difference >= 4 || !sameSideAsLast) {
-                                        // Reset stalled side
-                                        stalledSide = Side.NONE
+                                    if (stalledSide == Side.NONE || stalledSide != side) {
                                         // Attempt movement for 50 ms
                                         bluetoothService
                                             .driveMotor(
@@ -245,18 +241,13 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                                         side = side
                                                     )
                                             )
-                                        sleep(50)
-                                    }
-                                    // STALLED
-                                    else {
-                                        stalledSide = side
-                                        sleep(15)
+                                        sleep(40)
                                     }
                                 }
-                        }
+                            }
                     }
                 }
-                */
+            }
         }
     }
 }
