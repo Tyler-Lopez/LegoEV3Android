@@ -209,10 +209,15 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
                 // Normalize degree then denormalize to the centerDegreeDifference
                 val targetDegrees: Float =
-                    when (degree) {
-                        in 0..180 -> leftMax - ((180f - degree) / 180f) * (centerDegreeDifference)
-                        else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
-                    }
+                    if (side == Side.NONE)
+                    // If we want to generally go to the center, just ALWAYS go to the center
+                    // E.g., if center is 5, never target 0 always go to 5
+                        centerDegree
+                    else
+                        when (degree) {
+                            in 0..180 -> leftMax - ((180f - degree) / 180f) * (centerDegreeDifference)
+                            else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
+                        }
 
                 println("Left max is $leftMax, Right max is $rightMax, user attempting to move towards $targetDegrees")
 
