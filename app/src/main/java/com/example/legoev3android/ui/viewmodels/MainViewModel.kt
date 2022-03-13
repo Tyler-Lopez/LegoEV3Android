@@ -197,25 +197,29 @@ class MainViewModel @Inject constructor() : ViewModel() {
             // E.g. for 10 & 25 = 15
             val centerDegreeDifference = maxOf(rightMax, leftMax).minus(minOf(rightMax, leftMax))
 
+
             // This loop is what actually controls driving, based on left and right max
             while (true) {
                 val degree = joystickView.getDegree().toInt()
-                val side: Side? =
-                    when (degree) {
-                        in 120..240 -> Side.LEFT
-                        in 0..60, in 300..360 -> Side.RIGHT
-                        else -> null
-                    }
+                val side: Side =
+                    if (joystickView.getPower() < 5f) Side.NONE
+                    else
+                        when (degree) {
+                            in 120..240 -> Side.LEFT
+                            in 0..60, in 300..360 -> Side.RIGHT
+                            else -> Side.NONE
+                        }
+
 
                 // Normalize degree then denormalize to the centerDegreeDifference
                 val targetDegrees: Float =
-                    if (side == Side.NONE || joystickView.getPower() == 0f)
+                    if (side == Side.NONE)
                     // If we want to generally go to the center, just ALWAYS go to the center
                     // E.g., if center is 5, never target 0 always go to 5
-                        centerDegree
+                        (leftMax - (centerDegreeDifference / 2f))
                     else
                         when (degree) {
-                            in 0..180 -> leftMax - ((180f - degree) / 180f) * (centerDegreeDifference)
+                            in 0..180 -> leftMax - (((180f - degree) / 180f) * centerDegreeDifference)
                             else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
                         }
 
@@ -223,10 +227,10 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
 
                 // If the motor is stalled in this direction
-                if (side == stalledSide) {
+                if (side == stalledSide && side != Side.NONE) {
                     // Check back in 15 ms
                     println("here")
-                    sleep(15)
+                    sleep(30)
                 } else {
                     // Read the current motor degree
                     runBlocking {
@@ -253,8 +257,8 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
                                     println("We are currently at $it, target is $targetDegrees")
                                     // Are we already where we want to be?
-                                    if (kotlin.math.abs(targetDegrees - it) == 0f) {
-                                        sleep(15)
+                                    // Replace this in the future with some sort of scaling unit, not 5 as a constant - that's bad
+                                    if (kotlin.math.abs(targetDegrees - it) <= 5) {
                                     } else {
                                         val steeringPower =
                                             (kotlin.math.abs(targetDegrees - it)
@@ -278,9 +282,9 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                                             speedPercent = steeringPower.toInt()
                                                         )
                                                 )
-                                            sleep(40)
                                         }
                                     }
+                                    sleep(20)
                                 }
                             }
                     }
