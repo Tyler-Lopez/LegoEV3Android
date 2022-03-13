@@ -209,7 +209,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
                 // Normalize degree then denormalize to the centerDegreeDifference
                 val targetDegrees: Float =
-                    if (side == Side.NONE)
+                    if (side == Side.NONE || joystickView.getPower() == 0f)
                     // If we want to generally go to the center, just ALWAYS go to the center
                     // E.g., if center is 5, never target 0 always go to 5
                         centerDegree
@@ -223,7 +223,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
 
 
                 // If the motor is stalled in this direction
-                if (side == stalledSide || joystickView.getPower() < 5f) {
+                if (side == stalledSide) {
                     // Check back in 15 ms
                     println("here")
                     sleep(15)
