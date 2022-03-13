@@ -41,8 +41,7 @@ object MotorCommandFactory {
     // the speed percent
     fun createSteerMovement(
         motor: Motor,
-        speedPercent: Int,
-        side: Side
+        speedPercent: Int, // This should be coming in already adjusted to where we need to steer
     ): ByteArray {
         val commandList = mutableListOf<Byte>()
         commandList.add(0x10) // bb
@@ -56,10 +55,10 @@ object MotorCommandFactory {
         commandList.add(0x00) // cc
         commandList.add(motor.command.toByte()) // Select motors
         commandList.add((0x81).toByte()) // Percent represent
-        commandList.add((((speedPercent * 0.5f).toInt()).times(if (side == Side.LEFT) 1 else -1)).toByte())
+        commandList.add(speedPercent.toByte())
         commandList.add(0x00) // No STEP 1 - full speed from start
         commandList.add(0x82.toByte()) // "Encoded as 2 bytes to follow"?
-        commandList.add(0x32.toByte()) // 100 ms in Little Endian
+        commandList.add(0x32.toByte()) // 50 ms in Little Endian
         commandList.add(0x00.toByte())
         commandList.add(0x00) // No STEP 3 - full speed at end
         commandList.add(0x00) // No breaking at end, instead float

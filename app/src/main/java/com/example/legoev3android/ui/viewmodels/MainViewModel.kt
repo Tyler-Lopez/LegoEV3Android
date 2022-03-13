@@ -17,9 +17,11 @@ import kotlinx.coroutines.*
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.Float.min
 import java.lang.Math.abs
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.max
 
 @HiltViewModel
 class MainViewModel @Inject constructor() : ViewModel() {
@@ -113,8 +115,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
                         MotorCommandFactory
                             .createSteerMovement(
                                 motor = Motor.A,
-                                speedPercent = 50,
-                                side = Side.LEFT
+                                speedPercent = 50
                             )
                     )
                 // Wait for move to complete
@@ -158,8 +159,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
                         MotorCommandFactory
                             .createSteerMovement(
                                 motor = Motor.A,
-                                speedPercent = 50,
-                                side = Side.RIGHT
+                                speedPercent = -50
                             )
                     )
                 // Wait for move to complete
@@ -191,28 +191,40 @@ class MainViewModel @Inject constructor() : ViewModel() {
             }
             println("Left max found as $leftMax Right max found as $rightMax")
 
+            // This represents exact center
+            // E.g. for 10 & 25 = 17.5
+            val centerDegree = leftMax + rightMax / 2f
+            // E.g. for 10 & 25 = 15
+            val centerDegreeDifference = maxOf(rightMax, leftMax).minus(minOf(rightMax, leftMax))
+
             // This loop is what actually controls driving, based on left and right max
             while (true) {
-                val power = joystickView.getPower()
-                val side =
-                    when (joystickView.getDegree().toInt()) {
-                        in 100..260 -> Side.LEFT
-                        in 0..80, in 280..360 -> Side.RIGHT
-                        else -> Side.NONE
+                val degree = joystickView.getDegree().toInt()
+                val side: Side? =
+                    when (degree) {
+                        in 120..240 -> Side.LEFT
+                        in 0..60, in 300..360 -> Side.RIGHT
+                        else -> null
                     }
 
-                println("$power $side $stalledSide $lastSteerDegree")
+                // Normalize degree then denormalize to the centerDegreeDifference
+                val targetDegrees: Float =
+                    when (degree) {
+                        in 0..180 -> leftMax - ((180f - degree) / 180f) * (centerDegreeDifference)
+                        else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
+                    }
+
+                println("Left max is $leftMax, Right max is $rightMax, user attempting to move towards $targetDegrees")
 
 
                 // If the motor is stalled in this direction
-                if (side == Side.NONE || side == stalledSide || power < 5f) {
+                if (side == stalledSide || joystickView.getPower() < 5f) {
                     // Check back in 15 ms
                     println("here")
                     sleep(15)
                 } else {
                     // Read the current motor degree
                     runBlocking {
-                        println("HERE")
                         bluetoothService
                             .read(
                                 MotorCommandFactory
@@ -222,26 +234,47 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                     )
                             )
                             {
-                                println("Read degree as $it")
                                 if (it != null) {
-                                    stalledSide = if (kotlin.math.abs(it - leftMax) < 5) {
-                                        Side.LEFT
-                                    } else if (kotlin.math.abs(it - rightMax) < 5) {
-                                        Side.RIGHT
-                                    } else Side.NONE
+                                    // Reading for a stall...
+                                    stalledSide = when {
+                                        kotlin.math.abs(it - leftMax) < 5 -> {
+                                            Side.LEFT
+                                        }
+                                        kotlin.math.abs(it - rightMax) < 5 -> {
+                                            Side.RIGHT
+                                        }
+                                        else -> Side.NONE
+                                    }
 
-                                    if (stalledSide == Side.NONE || stalledSide != side) {
-                                        // Attempt movement for 50 ms
-                                        bluetoothService
-                                            .driveMotor(
-                                                MotorCommandFactory
-                                                    .createSteerMovement(
-                                                        motor = Motor.A,
-                                                        speedPercent = power.toInt(),
-                                                        side = side
-                                                    )
-                                            )
-                                        sleep(40)
+                                    println("We are currently at $it, target is $targetDegrees")
+                                    // Are we already where we want to be?
+                                    if (kotlin.math.abs(targetDegrees - it) == 0f) {
+                                        sleep(15)
+                                    } else {
+                                        val steeringPower =
+                                            (kotlin.math.abs(targetDegrees - it)
+                                                    / centerDegreeDifference) *
+                                                    when {
+                                                        targetDegrees < it -> -40
+                                                        else -> 40
+                                                    }
+
+                                        println("Steering power is $steeringPower")
+
+
+
+                                        if (stalledSide != side || side == Side.NONE) {
+                                            // Attempt movement for 50 ms
+                                            bluetoothService
+                                                .driveMotor(
+                                                    MotorCommandFactory
+                                                        .createSteerMovement(
+                                                            motor = Motor.A,
+                                                            speedPercent = steeringPower.toInt()
+                                                        )
+                                                )
+                                            sleep(40)
+                                        }
                                     }
                                 }
                             }
