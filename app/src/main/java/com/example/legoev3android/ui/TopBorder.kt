@@ -18,14 +18,14 @@ class TopBorder(
     // Invoked by Android and canvas provided
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        strokePaint.color = Color.argb(200, 219, 179, 0)
-        shadowPaint.color = Color.argb(80, 20, 20, 20)
+        strokePaint.color = Color.argb(100, 181, 246, 247)
+        shadowPaint.color = Color.argb(90, 20, 20, 20)
         shadowPaint.maskFilter = shadowFilter
         canvas.drawRect(
             0f,
             0f,
             width.toFloat(),
-            15f,
+            5f,
             shadowPaint
         )
 
@@ -33,7 +33,7 @@ class TopBorder(
             0f,
             0f,
             width.toFloat(),
-            8f,
+            3f,
             strokePaint
         )
     }

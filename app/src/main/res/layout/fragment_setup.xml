@@ -3,57 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/rel_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/ImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="32dp"
-            android:src="@drawable/text_feature_background"/>
+            android:src="@drawable/tech_button_1_off" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:weightSum="10"
-            android:gravity="center"
             android:layout_alignStart="@id/ImageView"
             android:layout_alignTop="@id/ImageView"
             android:layout_alignEnd="@id/ImageView"
             android:layout_alignBottom="@id/ImageView"
-            >
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="7"
             android:gravity="center"
-            android:orientation="vertical"
-            >
+            android:weightSum="10">
 
-        <TextView
-            android:id="@+id/ImageViewText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:textColor="@color/white"
-            android:text="I want to place a text on the imageview."
-        android:gravity="center"
-        />
-
-            <TextView
-                android:id="@+id/ImageViewText2"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:textColor="@color/white"
-                android:text="I want to place a text on the imageview."
+                android:layout_weight="7"
                 android:gravity="center"
-                />
-        </LinearLayout></LinearLayout>
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/ImageViewText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:shadowColor="@android:color/black"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="5"
+                    android:text="@string/setup_permissions_required_message"
+                    android:textColor="@color/white"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:id="@+id/ImageViewText2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:shadowColor="@color/teal_700"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="5"
+                    android:text="@string/setup_button_grant_permissions"
+                    android:textColor="@color/teal_200"
+                    android:textSize="24sp" />
+            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constrain_layout_devices_search"
         android:layout_width="match_parent"
@@ -78,15 +86,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_device_search" />
+
         <Button
             android:id="@+id/button_search_again"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search again"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_connections"/>
+            app:layout_constraintTop_toBottomOf="@id/rv_connections" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
