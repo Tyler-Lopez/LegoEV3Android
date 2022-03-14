@@ -5,7 +5,7 @@
     <!-- SETUP FRAGMENT -->
     <string name="setup_device_not_supported">This device does not support Bluetooth connections.</string>
     <string name="setup_loading_bluetooth">Loading Bluetooth</string>
-    <string name="setup_permissions_required_message">This application requires Location and Bluetooth permissions.</string>
-    <string name="setup_button_grant_permissions">Click to grant permissions.</string>
+    <string name="setup_permissions_required_message">Location / Bluetooth Access Required</string>
+    <string name="setup_button_grant_permissions">GRANT PERMISSIONS</string>
     <string name="setup_permissions_denied">Permissions are required for this app to function.</string>
 </resources>

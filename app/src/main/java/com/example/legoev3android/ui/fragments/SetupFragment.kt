@@ -10,6 +10,8 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentSetupBinding
+import com.example.legoev3android.databinding.TextFeatureHeaderSubtextBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.PermissionUtil
@@ -39,10 +42,12 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // UI: Centered single text
     private lateinit var centeredText: TextView
 
+    // UI: Permission Layout
+    private lateinit var permissionLayout: TextFeatureHeaderSubtextBinding
     // UI: Centered text and subtextWhen you want subtext and primary text
-    private lateinit var centerConstraintLayout: ConstraintLayout
-    private lateinit var textConstraintToSubtext: TextView
-    private lateinit var textConstraintToText: TextView
+  //  private lateinit var centerConstraintLayout: ConstraintLayout
+   // private lateinit var textConstraintToSubtext: TextView
+   // private lateinit var textConstraintToText: TextView
 
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
@@ -65,7 +70,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
             if (isGranted.containsValue(false))
-                textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
+              //  textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
             else // Permissions were granted
                 findAvailableDevices()
         }
@@ -96,7 +101,8 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
                 .adapter
 
-        centerConstraintLayout.visibility = View.GONE
+        permissionLayout.mainLayout.visibility = View.GONE
+        //centerConstraintLayout.visibility = View.GONE
 
         // The device is NOT supported for Bluetooth
         if (adapter == null) {
@@ -133,15 +139,28 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSetupBinding.bind(view)
 
+        // Begin rotation of blue geared circle infinitely
+         val rotateAnimation = RotateAnimation(
+            0f,
+            360f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        rotateAnimation.duration = 3600
+        rotateAnimation.repeatCount = Animation.INFINITE
+        binding!!.permissionsLayout.loadingDots.startAnimation(rotateAnimation)
+        permissionLayout = binding!!.permissionsLayout
         // Register for broadcasts when a device is discovered
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         requireActivity().registerReceiver(receiver, filter)
         // Binding is asserted non null here - binding is only made null in
         // onDestroy to prevent memory leaks
-        textConstraintToSubtext = binding!!.permissionText
-        textConstraintToText = binding!!.permissionSubtext
+    //    textConstraintToSubtext = binding!!.permissionText
+    //    textConstraintToText = binding!!.permissionSubtext
         centeredText = binding!!.centeredText
-        centerConstraintLayout = binding!!.constrainLayoutCenter
+    //    centerConstraintLayout = binding!!.constrainLayoutCenter
         rvDevices = binding!!.rvConnections
         rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
         textConstrainBottomToRv = binding!!.tvDeviceSearch
@@ -157,11 +176,12 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         else {
             // Hide center text, prevent text/subtext/button
             centeredText.visibility = View.GONE
-            centerConstraintLayout.visibility = View.VISIBLE
-            textConstraintToSubtext.text =
-                getString(R.string.setup_permissions_required_message)
-            textConstraintToText.text = getString(R.string.setup_button_grant_permissions)
-            centerConstraintLayout.setOnClickListener {
+            permissionLayout.mainLayout.visibility = View.VISIBLE
+          //  centerConstraintLayout.visibility = View.VISIBLE
+          //  textConstraintToSubtext.text =
+          //      getString(R.string.setup_permissions_required_message)
+          //  textConstraintToText.text = getString(R.string.setup_button_grant_permissions)
+            permissionLayout.ImageView.setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     requestPermissionsLauncher.launch(
                         arrayOf(
@@ -180,6 +200,8 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                     )
                 }
             }
+
+
         }
     }
 
