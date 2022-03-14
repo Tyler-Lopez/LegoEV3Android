@@ -189,14 +189,9 @@ class MainViewModel @Inject constructor() : ViewModel() {
                         }
                 }
             }
-            println("Left max found as $leftMax Right max found as $rightMax")
 
-            // This represents exact center
-            // E.g. for 10 & 25 = 17.5
-            val centerDegree = leftMax + rightMax / 2f
             // E.g. for 10 & 25 = 15
             val centerDegreeDifference = maxOf(rightMax, leftMax).minus(minOf(rightMax, leftMax))
-
 
             // This loop is what actually controls driving, based on left and right max
             while (true) {
@@ -210,7 +205,6 @@ class MainViewModel @Inject constructor() : ViewModel() {
                             else -> Side.NONE
                         }
 
-
                 // Normalize degree then denormalize to the centerDegreeDifference
                 val targetDegrees: Float =
                     if (side == Side.NONE)
@@ -223,16 +217,12 @@ class MainViewModel @Inject constructor() : ViewModel() {
                             else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
                         }
 
-                println("Left max is $leftMax, Right max is $rightMax, user attempting to move towards $targetDegrees")
-
-
                 // If the motor is stalled in this direction
                 if (side == stalledSide && side != Side.NONE) {
                     // Check back in 15 ms
-                    println("here")
-                    sleep(30)
+                    sleep(15)
                 } else {
-                    // Read the current motor degree
+                    // Read the current motor degree, and send appropriate response
                     runBlocking {
                         bluetoothService
                             .read(
@@ -243,6 +233,8 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                     )
                             )
                             {
+                                // It would return null in event of invalid connection
+                                // May be able to be removed later
                                 if (it != null) {
                                     // Reading for a stall...
                                     stalledSide = when {
@@ -255,11 +247,9 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                         else -> Side.NONE
                                     }
 
-                                    println("We are currently at $it, target is $targetDegrees")
                                     // Are we already where we want to be?
                                     // Replace this in the future with some sort of scaling unit, not 5 as a constant - that's bad
-                                    if (kotlin.math.abs(targetDegrees - it) <= 5) {
-                                    } else {
+                                    if (kotlin.math.abs(targetDegrees - it) > 5) {
                                         val steeringPower =
                                             (kotlin.math.abs(targetDegrees - it)
                                                     / centerDegreeDifference) *
@@ -283,7 +273,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                                         )
                                                 )
                                         }
-                                    }
+                                    } // End block if not at destination
                                     sleep(20)
                                 }
                             }
