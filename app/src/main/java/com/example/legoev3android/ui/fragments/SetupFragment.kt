@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -45,9 +46,9 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // UI: Permission Layout
     private lateinit var permissionLayout: TextFeatureHeaderSubtextBinding
     // UI: Centered text and subtextWhen you want subtext and primary text
-  //  private lateinit var centerConstraintLayout: ConstraintLayout
-   // private lateinit var textConstraintToSubtext: TextView
-   // private lateinit var textConstraintToText: TextView
+    //  private lateinit var centerConstraintLayout: ConstraintLayout
+    // private lateinit var textConstraintToSubtext: TextView
+    // private lateinit var textConstraintToText: TextView
 
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
@@ -70,7 +71,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
             if (isGranted.containsValue(false))
-              //  textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
+            //  textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
             else // Permissions were granted
                 findAvailableDevices()
         }
@@ -140,7 +141,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         binding = FragmentSetupBinding.bind(view)
 
         // Begin rotation of blue geared circle infinitely
-         val rotateAnimation = RotateAnimation(
+        val rotateAnimation = RotateAnimation(
             0f,
             360f,
             Animation.RELATIVE_TO_SELF,
@@ -157,10 +158,10 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         requireActivity().registerReceiver(receiver, filter)
         // Binding is asserted non null here - binding is only made null in
         // onDestroy to prevent memory leaks
-    //    textConstraintToSubtext = binding!!.permissionText
-    //    textConstraintToText = binding!!.permissionSubtext
+        //    textConstraintToSubtext = binding!!.permissionText
+        //    textConstraintToText = binding!!.permissionSubtext
         centeredText = binding!!.centeredText
-    //    centerConstraintLayout = binding!!.constrainLayoutCenter
+        //    centerConstraintLayout = binding!!.constrainLayoutCenter
         rvDevices = binding!!.rvConnections
         rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
         textConstrainBottomToRv = binding!!.tvDeviceSearch
@@ -177,11 +178,14 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             // Hide center text, prevent text/subtext/button
             centeredText.visibility = View.GONE
             permissionLayout.mainLayout.visibility = View.VISIBLE
-          //  centerConstraintLayout.visibility = View.VISIBLE
-          //  textConstraintToSubtext.text =
-          //      getString(R.string.setup_permissions_required_message)
-          //  textConstraintToText.text = getString(R.string.setup_button_grant_permissions)
-            permissionLayout.ImageView.setOnClickListener {
+            //  centerConstraintLayout.visibility = View.VISIBLE
+            //  textConstraintToSubtext.text =
+            //      getString(R.string.setup_permissions_required_message)
+            //  textConstraintToText.text = getString(R.string.setup_button_grant_permissions)
+            permissionLayout.techButtonBg.setOnClickListener {
+
+                togglePermissionLayout(isOn = true)
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     requestPermissionsLauncher.launch(
                         arrayOf(
@@ -203,6 +207,22 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
 
         }
+    }
+
+    // Turn permission layout ON / OFF
+    fun togglePermissionLayout(isOn: Boolean) {
+        permissionLayout.techButtonBg.setImageResource(
+            if (isOn)
+                R.drawable.tech_button_1_on
+            else
+                R.drawable.tech_button_1_off
+        )
+        // Text Appearance defined in themes.xml
+        permissionLayout.textHeader.setTextAppearance(
+            if (isOn)
+                R.style.TextLightShadow
+            else
+                R.style.TextTealShadow)
     }
 
     // This is necessary to prevent memory leaks

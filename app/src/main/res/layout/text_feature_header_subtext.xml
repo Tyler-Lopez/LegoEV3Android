@@ -20,7 +20,7 @@
             android:src="@drawable/blue_geared_circle" />
 
         <ImageView
-            android:id="@+id/ImageView"
+            android:id="@+id/tech_button_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="32dp"
@@ -29,10 +29,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@id/ImageView"
-            android:layout_alignTop="@id/ImageView"
-            android:layout_alignEnd="@id/ImageView"
-            android:layout_alignBottom="@id/ImageView"
+            android:layout_alignStart="@id/tech_button_bg"
+            android:layout_alignTop="@id/tech_button_bg"
+            android:layout_alignEnd="@id/tech_button_bg"
+            android:layout_alignBottom="@id/tech_button_bg"
             android:gravity="center"
             android:weightSum="10">
 
@@ -45,7 +45,7 @@
 
 
                 <TextView
-                    android:id="@+id/ImageViewText2"
+                    android:id="@+id/text_header"
                     android:layout_width="match_parent"
                     android:layout_height="75dp"
                     app:autoSizeTextType="uniform"
@@ -60,7 +60,7 @@
                      />
 
                 <TextView
-                    android:id="@+id/ImageViewText"
+                    android:id="@+id/text_subtext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
