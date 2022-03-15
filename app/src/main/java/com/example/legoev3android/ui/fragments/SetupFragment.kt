@@ -70,9 +70,10 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
-            if (isGranted.containsValue(false))
-            //  textConstraintToSubtext.text = getString(R.string.setup_permissions_denied)
-            else // Permissions were granted
+            // Set permissions layout to the non-active state
+            togglePermissionLayout(isOn = false)
+            // Permissions were granted
+            if (!isGranted.containsValue(false))
                 findAvailableDevices()
         }
 
