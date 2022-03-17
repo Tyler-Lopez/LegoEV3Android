@@ -14,7 +14,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">
-
+        <include
+            android:id="@+id/text_bluetooth_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            layout="@layout/text_electronic_header"
+            />
         <TextView
             android:id="@+id/tv_device_search"
             android:layout_width="match_parent"
@@ -22,7 +30,7 @@
             android:text="Searching for devices"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/text_bluetooth_header"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_connections"

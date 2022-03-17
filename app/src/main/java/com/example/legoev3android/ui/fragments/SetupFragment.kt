@@ -27,6 +27,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentSetupBinding
+import com.example.legoev3android.databinding.TextElectronicHeaderBinding
 import com.example.legoev3android.databinding.TextFeatureHeaderSubtextBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
@@ -54,10 +55,9 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
 
     // UI: Permission Layout
     private lateinit var permissionLayout: TextFeatureHeaderSubtextBinding
-    // UI: Centered text and subtextWhen you want subtext and primary text
-    //  private lateinit var centerConstraintLayout: ConstraintLayout
-    // private lateinit var textConstraintToSubtext: TextView
-    // private lateinit var textConstraintToText: TextView
+
+    // UI: Bluetooth Header
+    private lateinit var blueToothHeader: TextElectronicHeaderBinding
 
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
@@ -112,7 +112,7 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
             (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
                 .adapter
 
-        // Animate out permission layout
+        // Animate OUT permission layout
         val transition = Slide()
         transition.slideEdge = Gravity.START
         transition.addTarget(permissionLayout.mainLayout)
@@ -122,7 +122,6 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
             transition
         )
         permissionLayout.mainLayout.visibility = View.GONE
-        //centerConstraintLayout.visibility = View.GONE
 
         // The device is NOT supported for Bluetooth
         if (adapter == null) {
@@ -137,6 +136,7 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
                 adapter.cancelDiscovery()
                 findNavController().navigate(R.id.action_setupFragment_to_controllerFragment)
             }
+
             rvConstraintLayout.visibility = View.VISIBLE
             textConstrainBottomToRv.text = "Searching for Bluetooth Devices"
             val pairedDevices = adapter.bondedDevices
@@ -145,6 +145,22 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
                 deviceList.add(device)
                 rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
             }
+
+            // Animate IN gradient background from top with slight delay
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(10)
+                val transitionGradientTop = Slide()
+                transitionGradientTop.slideEdge = Gravity.TOP
+                transitionGradientTop.addTarget(blueToothHeader.mainElectronicHeaderLayout)
+                transitionGradientTop.duration = 1200
+                TransitionManager.beginDelayedTransition(
+                    binding?.root as ViewGroup?,
+                    transitionGradientTop
+                )
+                blueToothHeader.mainElectronicHeaderLayout.visibility = View.VISIBLE
+            }
+
+            // Begin search for devices
             adapter.startDiscovery()
         }
     }
@@ -166,6 +182,7 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
         // onDestroy to prevent memory leaks
         centeredText = binding!!.centeredText
         permissionLayout = binding!!.permissionsLayout
+        blueToothHeader = binding!!.textBluetoothHeader
         rvDevices = binding!!.rvConnections
         rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
         textConstrainBottomToRv = binding!!.tvDeviceSearch

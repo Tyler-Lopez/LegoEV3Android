@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_electronic_header_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="0dp"
+    android:padding="0dp"
+    android:visibility="gone"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/rel_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:id="@+id/tech_outline_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:src="@drawable/window_bottom"
+            android:contentDescription="TODO" />
+        <!-- This is hidden to start, should be set visible and animate in from top -->
+        <View
+            android:id="@+id/gradient_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/tech_outline_bottom"
+            android:background="@drawable/linear_gradient_black_to_alpha"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/tech_outline_bottom"
+            android:layout_alignTop="@id/tech_outline_bottom"
+            android:layout_alignEnd="@id/tech_outline_bottom"
+            android:layout_alignBottom="@id/tech_outline_bottom"
+            android:gravity="center"
+            android:weightSum="10">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:gravity="center"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:id="@+id/text_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    app:autoSizeTextType="uniform"
+                    android:gravity="center"
+                    android:fontFamily="@font/legothick"
+                    android:textAppearance="@style/TextLightShadow"
+                    android:text="SELECT BLUETOOTH DEVICE"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
