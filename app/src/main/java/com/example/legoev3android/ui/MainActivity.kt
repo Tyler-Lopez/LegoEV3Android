@@ -22,6 +22,5 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
-        supportActionBar?.setCustomView(R.layout.custom_action_bar)
     }
 }

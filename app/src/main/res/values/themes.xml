@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Theme.LegoEV3Android" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="actionBarStyle">@style/ActionBar</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:actionBarSize">0dp</item>
         <item name="colorPrimary">@color/darkgrey</item>
         <item name="colorPrimaryVariant">@color/black</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -14,16 +16,8 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
-    <style name="ActionBar" parent="Widget.AppCompat.ActionBar">
-        <item name="displayOptions">showCustom</item>
-        <item name="background">@drawable/metal_background</item>
-        <item name="actionBarSize">75dp</item>
-        <item name="height">75dp</item>
-        <item name="contentInsetLeft">0dp</item>
-        <item name="contentInsetStart">0dp</item>
-        <item name="contentInsetEnd">0dp</item>
-        <item name="android:layout_marginLeft">0dp</item>
-    </style>
+
+    <!-- Text Appearances, Activated Programmatically -->
     <style name="TextLightShadow">
         <item name="android:textColor">@color/white</item>
         <item name="android:shadowColor">@color/white</item>
