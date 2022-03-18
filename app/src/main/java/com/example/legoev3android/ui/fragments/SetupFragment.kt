@@ -62,7 +62,6 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
     private lateinit var rvConstraintLayout: ConstraintLayout
-    private lateinit var textConstrainBottomToRv: TextView
     private val deviceList = mutableListOf<BluetoothDevice>()
 
 
@@ -138,28 +137,12 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
             }
 
             rvConstraintLayout.visibility = View.VISIBLE
-            textConstrainBottomToRv.text = "Searching for Bluetooth Devices"
             val pairedDevices = adapter.bondedDevices
             pairedDevices.forEach { device ->
 
                 deviceList.add(device)
                 rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
             }
-
-            // Animate IN gradient background from top with slight delay
-            viewLifecycleOwner.lifecycleScope.launch {
-                delay(10)
-                val transitionGradientTop = Slide()
-                transitionGradientTop.slideEdge = Gravity.TOP
-                transitionGradientTop.addTarget(blueToothHeader.mainElectronicHeaderLayout)
-                transitionGradientTop.duration = 1200
-                TransitionManager.beginDelayedTransition(
-                    binding?.root as ViewGroup?,
-                    transitionGradientTop
-                )
-                blueToothHeader.mainElectronicHeaderLayout.visibility = View.VISIBLE
-            }
-
             // Begin search for devices
             adapter.startDiscovery()
         }
@@ -185,7 +168,6 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
         blueToothHeader = binding!!.textBluetoothHeader
         rvDevices = binding!!.rvConnections
         rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
-        textConstrainBottomToRv = binding!!.tvDeviceSearch
 
         // Begin rotation of blue geared circle infinitely
         val rotateAnimation = RotateAnimation(

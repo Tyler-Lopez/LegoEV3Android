@@ -23,34 +23,23 @@
             app:layout_constraintTop_toTopOf="parent"
             layout="@layout/text_electronic_header"
             />
-        <TextView
-            android:id="@+id/tv_device_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Searching for devices"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_bluetooth_header"/>
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_connections"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:padding="4dp"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/background_with_stroke"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/button_search_again"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_device_search" />
-
-        <Button
-            android:id="@+id/button_search_again"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search again"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_connections" />
+            app:layout_constraintTop_toBottomOf="@id/text_bluetooth_header" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView

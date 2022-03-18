@@ -6,4 +6,7 @@
     <font
         android:fontStyle="normal"
         android:font="@font/red_alert_regular" />
+    <font
+        android:fontStyle="normal"
+        android:font="@font/orbitron_medium" />
 </font-family>
