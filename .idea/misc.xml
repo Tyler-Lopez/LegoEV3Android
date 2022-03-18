@@ -22,6 +22,8 @@
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/drawable/radial_grey_bg.xml" value="0.176" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/font-v26/font.xml" value="0.11388888888888889" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/font/font.xml" value="0.11388888888888889" />
+        <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout-land/fragment_setup.xml" value="0.3421516754850088" />
+        <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout-land/recycler_view_adaptive.xml" value="0.22707231040564374" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout-v26/fragment_setup.xml" value="0.17527173913043478" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/activity_main.xml" value="0.40217391304347827" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/custom_action_bar.xml" value="0.40217391304347827" />
@@ -29,6 +31,7 @@
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/fragment_setup.xml" value="0.3442028985507246" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/item_device.xml" value="0.17527173913043478" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/light_shadow.xml" value="0.40217391304347827" />
+        <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/recycler_view_adaptive.xml" value="0.40217391304347827" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/text_badge_feature.xml" value="0.2" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/text_electronic_header.xml" value="0.40217391304347827" />
         <entry key="..\:/Users/tylop/GitHub/LegoEV3Android/app/src/main/res/layout/text_feature_header_subtext.xml" value="0.21354166666666666" />

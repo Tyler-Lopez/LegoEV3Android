@@ -166,7 +166,7 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
         centeredText = binding!!.centeredText
         permissionLayout = binding!!.permissionsLayout
         blueToothHeader = binding!!.textBluetoothHeader
-        rvDevices = binding!!.rvConnections
+        rvDevices = binding!!.recyclerViewDevicesLayout.rvConnections
         rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
 
         // Begin rotation of blue geared circle infinitely
