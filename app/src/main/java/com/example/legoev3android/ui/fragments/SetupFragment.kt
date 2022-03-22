@@ -26,8 +26,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.legoev3android.R
+import com.example.legoev3android.databinding.DevicesSelectLayoutBinding
 import com.example.legoev3android.databinding.FragmentSetupBinding
-import com.example.legoev3android.databinding.TextElectronicHeaderBinding
 import com.example.legoev3android.databinding.TextFeatureHeaderSubtextBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
@@ -37,7 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class SetupFragment() : Fragment(R.layout.fragment_setup) {
+class SetupFragment : Fragment(R.layout.fragment_setup) {
 
     private val viewModel: MainViewModel by viewModels()
     private var binding: FragmentSetupBinding? = null
@@ -57,11 +57,11 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
     private lateinit var permissionLayout: TextFeatureHeaderSubtextBinding
 
     // UI: Bluetooth Header
-    private lateinit var blueToothHeader: TextElectronicHeaderBinding
+  //  private lateinit var blueToothHeader: TextElectronicHeaderBinding
 
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
-    private lateinit var rvConstraintLayout: ConstraintLayout
+    private lateinit var devicesSelectLayout: DevicesSelectLayoutBinding
     private val deviceList = mutableListOf<BluetoothDevice>()
 
 
@@ -135,8 +135,14 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
                 adapter.cancelDiscovery()
                 findNavController().navigate(R.id.action_setupFragment_to_controllerFragment)
             }
+            binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
+            // Transition in the Recycler View and make VISIBLE
+            binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY = 5000f
+            val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
+                .animate()
+                animation.duration = 5000
+            animation.alpha(0.1f).translationY(0f).start()
 
-            rvConstraintLayout.visibility = View.VISIBLE
             val pairedDevices = adapter.bondedDevices
             pairedDevices.forEach { device ->
 
@@ -165,9 +171,9 @@ class SetupFragment() : Fragment(R.layout.fragment_setup) {
         // onDestroy to prevent memory leaks
         centeredText = binding!!.centeredText
         permissionLayout = binding!!.permissionsLayout
-        blueToothHeader = binding!!.textBluetoothHeader
-        rvDevices = binding!!.recyclerViewDevicesLayout.rvConnections
-        rvConstraintLayout = binding!!.constrainLayoutDevicesSearch
+        devicesSelectLayout = binding!!.devicesSelectLayout
+        rvDevices = devicesSelectLayout.recyclerViewDevicesLayout.rvConnections
+
 
         // Begin rotation of blue geared circle infinitely
         val rotateAnimation = RotateAnimation(

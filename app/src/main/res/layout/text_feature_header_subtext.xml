@@ -54,9 +54,10 @@
                 <TextView
                     android:id="@+id/text_header"
                     android:layout_width="match_parent"
-                    android:layout_height="75dp"
+                    android:layout_height="60dp"
                     app:autoSizeTextType="uniform"
                     android:gravity="center"
+                    android:breakStrategy="simple"
                     android:fontFamily="@font/red_alert_regular"
                     android:shadowColor="@color/teal_700"
                     android:shadowDx="0"
@@ -69,7 +70,7 @@
                 <TextView
                     android:id="@+id/text_subtext"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="20dp"
                     android:gravity="center"
                     android:shadowColor="@color/white"
                     android:shadowDx="0"
