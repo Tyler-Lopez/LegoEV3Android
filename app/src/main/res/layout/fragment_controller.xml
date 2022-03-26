@@ -14,86 +14,53 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <RelativeLayout
-            android:id="@+id/relative_layout_joystick"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
+
+        <com.example.legoev3android.ui.views.JoystickView
+            android:id="@+id/joystick_view"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.example.legoev3android.ui.JoystickView
-                android:id="@+id/joystick_view"
-                android:layout_width="350dp"
-                android:layout_height="350dp"
-                android:layout_centerInParent="true" />
-
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/motor_information_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="Motor Information From BT"
-            android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@id/relative_layout_joystick"
-            app:layout_constraintTop_toTopOf="parent"/>
-
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/button_sound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PLAY SOUND"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/button_medium_open"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/motor_information_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Motor Information From BT"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/relative_layout_joystick" />
+            />
 
-        <Button
-            android:id="@+id/button_medium_open"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OPEN"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/button_medium_close"
-            app:layout_constraintStart_toEndOf="@id/button_sound"
-            app:layout_constraintTop_toBottomOf="@id/relative_layout_joystick" />
-
-        <Button
-            android:id="@+id/button_medium_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CLOSE"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/button_medium_open"
-            app:layout_constraintTop_toBottomOf="@id/relative_layout_joystick" />
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- TODO: Update blank fragment layout -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="400dp"
         android:layout_height="300dp"
-        app:cardElevation="10dp"
-        app:cardCornerRadius="40dp"
-        app:cardUseCompatPadding="false"
         android:layout_margin="16dp"
         app:cardBackgroundColor="@color/transparent"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="10dp"
+        app:cardUseCompatPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:background="@color/red_transparent"
             android:layout_height="match_parent"
+            android:background="@color/red_transparent"
             android:padding="36dp">
 
             <TextView

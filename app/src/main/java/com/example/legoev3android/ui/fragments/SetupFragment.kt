@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.transition.Slide
 import android.transition.TransitionManager
+import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -57,7 +58,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     private lateinit var permissionLayout: TextFeatureHeaderSubtextBinding
 
     // UI: Bluetooth Header
-  //  private lateinit var blueToothHeader: TextElectronicHeaderBinding
+    //  private lateinit var blueToothHeader: TextElectronicHeaderBinding
 
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
@@ -107,20 +108,43 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // Invoked after permissions have been confirmed
     // Return all available Bluetooth devices
     private fun findAvailableDevices() {
+        // Animate OUT the "Request Permissions" button if necessary
+        if (permissionLayout.mainLayout.visibility != View.GONE) {
+            // Animate OUT permission layout
+            val transition = Slide()
+            transition.slideEdge = Gravity.START
+            transition.addTarget(permissionLayout.mainLayout)
+            transition.duration = 1200
+            TransitionManager.beginDelayedTransition(
+                binding?.root as ViewGroup?,
+                transition
+            )
+            permissionLayout.mainLayout.visibility = View.GONE
+        }
+
+        // Animate in devices search view
+        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
+        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY =
+            -1f * binding!!.root.measuredHeight
+
+
+        // https://stackoverflow.com/questions/63276134/getter-for-defaultdisplay-display-is-deprecated-deprecated-in-java
+        val height = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val display = requireActivity().windowManager.maximumWindowMetrics.bounds.height()
+        } else {
+            @Suppress("DEPRECATION")
+            val display = requireActivity().windowManager.defaultDisplay
+        }
+
+        println("HEIGHT IS " + DisplayMetrics().heightPixels)
+        val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
+            .animate()
+        animation.duration = 3000
+        animation.translationY(0f).start()
+
         val adapter =
             (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
                 .adapter
-
-        // Animate OUT permission layout
-        val transition = Slide()
-        transition.slideEdge = Gravity.START
-        transition.addTarget(permissionLayout.mainLayout)
-        transition.duration = 1200
-        TransitionManager.beginDelayedTransition(
-            binding?.root as ViewGroup?,
-            transition
-        )
-        permissionLayout.mainLayout.visibility = View.GONE
 
         // The device is NOT supported for Bluetooth
         if (adapter == null) {
@@ -135,13 +159,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                 adapter.cancelDiscovery()
                 findNavController().navigate(R.id.action_setupFragment_to_controllerFragment)
             }
-            binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
-            // Transition in the Recycler View and make VISIBLE
-            binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY = 5000f
-            val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
-                .animate()
-                animation.duration = 5000
-            animation.alpha(0.1f).translationY(0f).start()
+
 
             val pairedDevices = adapter.bondedDevices
             pairedDevices.forEach { device ->

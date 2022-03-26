@@ -1,15 +1,12 @@
-package com.example.legoev3android.ui
+package com.example.legoev3android.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.MotionEvent.*
 import android.view.View
-import kotlin.math.abs
-import kotlin.math.hypot
 
 // https://www.raywenderlich.com/142-android-custom-view-tutorial
 class JoystickView(
@@ -34,6 +31,7 @@ class JoystickView(
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return when (event?.action) {
             ACTION_DOWN -> {
