@@ -17,8 +17,6 @@
         android:layout_height="match_parent"
         layout="@layout/devices_select_layout"
         />
-
-
     <TextView
         android:id="@+id/centered_text"
         android:layout_width="wrap_content"

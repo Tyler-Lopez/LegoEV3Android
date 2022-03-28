@@ -1,6 +1,7 @@
 package com.example.legoev3android.ui.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
@@ -16,12 +17,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
-import android.view.animation.Animation.AnimationListener
-import android.view.animation.AnimationUtils
 import android.view.animation.RotateAnimation
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -58,14 +56,10 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     // UI: Permission Layout
     private lateinit var permissionLayout: TextFeatureHeaderSubtextBinding
 
-    // UI: Bluetooth Header
-    //  private lateinit var blueToothHeader: TextElectronicHeaderBinding
-
     // UI: Show Recycler view
     private lateinit var rvDevices: RecyclerView
     private lateinit var devicesSelectLayout: DevicesSelectLayoutBinding
     private val deviceList = mutableListOf<BluetoothDevice>()
-
 
     /*
 
@@ -73,7 +67,6 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
     Used to receive and handle permission requests and BluetoothAdapter discovery
 
      */
-
 
     // Used to launch and receive results for permission requests
     private val requestPermissionsLauncher =
@@ -108,8 +101,10 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
 
     // Invoked after permissions have been confirmed
     // Return all available Bluetooth devices
+    @SuppressLint("MissingPermission")
     private fun findAvailableDevices() {
-        // Animate OUT the "Request Permissions" button if necessary
+
+        // Animate OUT the "Request Permissions" button IF necessary
         if (permissionLayout.mainLayout.visibility != View.GONE) {
             // Animate OUT permission layout
             val transition = Slide()
@@ -171,10 +166,11 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
                 .animate()
             // When the animation concludes, THEN start discovery
-            // This prevents the size of the animating view changing during the brief animation
+            // This makes the animation less laggy
             animation.withEndAction {
                 adapter.startDiscovery()
             }
+
             animation.duration = 2500
             animation.translationY(0f).start()
         }
@@ -187,6 +183,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
      */
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSetupBinding.bind(view)
 
