@@ -122,19 +122,23 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             permissionLayout.mainLayout.visibility = View.GONE
         }
 
-        // Animate in devices search view
-        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
-        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY =
-            -1f * binding!!.root.measuredHeight
+
 
 
         // https://stackoverflow.com/questions/63276134/getter-for-defaultdisplay-display-is-deprecated-deprecated-in-java
-        val height = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val display = requireActivity().windowManager.maximumWindowMetrics.bounds.height()
+        val height: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            requireActivity().windowManager.maximumWindowMetrics.bounds.height()
         } else {
+            val displayMetrics = DisplayMetrics()
             @Suppress("DEPRECATION")
-            val display = requireActivity().windowManager.defaultDisplay
+            requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.heightPixels
         }
+
+        // Animate in devices search view
+        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
+        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY =
+            -1f * height
 
         println("HEIGHT IS " + DisplayMetrics().heightPixels)
         val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
