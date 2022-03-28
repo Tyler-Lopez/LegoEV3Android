@@ -183,7 +183,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
      */
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        
+
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSetupBinding.bind(view)
 
