@@ -16,6 +16,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.view.animation.RotateAnimation
 import android.widget.TextView
@@ -123,29 +124,6 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         }
 
 
-
-
-        // https://stackoverflow.com/questions/63276134/getter-for-defaultdisplay-display-is-deprecated-deprecated-in-java
-        val height: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            requireActivity().windowManager.maximumWindowMetrics.bounds.height()
-        } else {
-            val displayMetrics = DisplayMetrics()
-            @Suppress("DEPRECATION")
-            requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-            displayMetrics.heightPixels
-        }
-
-        // Animate in devices search view
-        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
-        binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY =
-            -1f * height
-
-        println("HEIGHT IS " + DisplayMetrics().heightPixels)
-        val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
-            .animate()
-        animation.duration = 3000
-        animation.translationY(0f).start()
-
         val adapter =
             (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
                 .adapter
@@ -156,6 +134,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             centeredText.visibility = View.VISIBLE
             centeredText.text = getString(R.string.setup_device_not_supported)
         } else {
+
             rvDevices.adapter = DeviceAdapter(
                 devices = deviceList
             ) {
@@ -171,8 +150,33 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                 deviceList.add(device)
                 rvDevices.adapter?.notifyItemInserted(deviceList.lastIndex)
             }
-            // Begin search for devices
-            adapter.startDiscovery()
+
+            // https://stackoverflow.com/questions/63276134/getter-for-defaultdisplay-display-is-deprecated-deprecated-in-java
+            // Get height appropriately for all devices
+            val height: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                requireActivity().windowManager.maximumWindowMetrics.bounds.height()
+            } else {
+                val displayMetrics = DisplayMetrics()
+                @Suppress("DEPRECATION") // Suppress as we have the modern approach covered
+                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+                displayMetrics.heightPixels
+            }
+
+            // Animate in devices Recycler View
+            // It will start up and animate down into position
+            binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.visibility = View.VISIBLE
+            binding!!.devicesSelectLayout.constrainLayoutDevicesSearch.translationY =
+                -1f * height
+
+            val animation = binding!!.devicesSelectLayout.constrainLayoutDevicesSearch
+                .animate()
+            // When the animation concludes, THEN start discovery
+            // This prevents the size of the animating view changing during the brief animation
+            animation.withEndAction {
+                adapter.startDiscovery()
+            }
+            animation.duration = 2500
+            animation.translationY(0f).start()
         }
     }
 
