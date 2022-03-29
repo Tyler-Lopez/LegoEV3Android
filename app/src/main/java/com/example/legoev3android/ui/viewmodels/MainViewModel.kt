@@ -49,7 +49,6 @@ class MainViewModel @Inject constructor() : ViewModel() {
     ) : Thread() {
 
         private var stalledSide: Side = Side.NONE
-        private var lastSide: Side = Side.NONE
         private var leftMax: Float = 0f
         private var rightMax: Float = 0f
 

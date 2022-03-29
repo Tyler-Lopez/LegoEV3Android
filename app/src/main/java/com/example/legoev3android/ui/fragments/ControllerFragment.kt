@@ -7,11 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.transition.Slide
-import android.transition.TransitionManager
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.legoev3android.R
@@ -50,7 +46,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     }
                     // If we have reached here: no UUID matched the EV3 constant
                     // TODO use a different way to inform user of failure
-                    binding?.centeredText?.text = "This is not a Lego EV3."
+                    // TODO remove logic from this removed textview into a information menu
+                    //binding?.centeredText?.text = "This is not a Lego EV3."
                 }
 
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
@@ -62,7 +59,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     if (device?.bondState == BluetoothDevice.BOND_BONDED) {
                         bluetoothService.connect(device)
                     }
-                    device?.let { binding?.centeredText?.text = device.bondState.toString() }
+                    // TODO remove logic from this removed textview into a information menu
+                    // device?.let { binding?.centeredText?.text = device.bondState.toString() }
                 }
             }
         }
@@ -88,20 +86,24 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
-
+/*
         val transition = Slide()
         transition.slideEdge = Gravity.END
         transition.addTarget(binding?.cardView)
         transition.duration = 600
 
 
+ */
+
         bluetoothService = MyBluetoothService(requireContext()) {
+
             requireActivity().runOnUiThread {
-                TransitionManager.beginDelayedTransition(
-                    binding?.root as ViewGroup?,
-                    transition
-                )
-                binding?.cardView?.visibility = View.GONE
+            //    TransitionManager.beginDelayedTransition(
+              //      binding?.root as ViewGroup?,
+               //     transition
+               // )
+                // TODO remove logic from this removed textview into a information menu
+                //  binding?.cardView?.visibility = View.GONE
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
             }
             // This should mean the go ahead on we are connected
@@ -110,13 +112,11 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         }
 
-        //  viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView).start()
-
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()
         }
-
-        binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
+        // TODO remove logic from this removed textview into a information menu
+        //     binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
 
     }
