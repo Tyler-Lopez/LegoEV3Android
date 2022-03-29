@@ -11,28 +11,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor() : ViewModel() {
-    private var mBluetoothAdapter: BluetoothAdapter? = null
-
-    // Come back to this for reading other stuff, like ports
-    /*
-    fun registerForDeviceInformation(
-        bluetoothService: MyBluetoothService,
-        callback: (String) -> Unit
-    ) {
-        println("Invoked register for device information")
-        // https://developer.android.com/topic/libraries/architecture/coroutines
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                while (true) {
-                    println("Reading information")
-
-                    delay(1000)
-                }
-            }
-        }
-    }
-
-     */
 
     inner class JoystickDriveThread(
         private val bluetoothService: MyBluetoothService,

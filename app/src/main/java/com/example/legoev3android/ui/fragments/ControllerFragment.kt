@@ -26,33 +26,33 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     private var binding: FragmentControllerBinding? = null
     private lateinit var bluetoothService: MyBluetoothService
 
-
+    // This object is used to listen to all changes in bond state to device
     private val receiver = object : BroadcastReceiver() {
         @SuppressLint("MissingPermission")
         override fun onReceive(context: Context, intent: Intent) {
             // If a device was found
             when (intent.action) {
-                // This is always the first action called, retrieves device UUIDs
+                // First action to be received: we must ensure this is an EV3
                 BluetoothDevice.ACTION_UUID -> {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     device?.run {
                         if (!device.uuids.isNullOrEmpty())
                             device.uuids.forEach {
-                                println(it.uuid)
                                 if ("${it.uuid}".uppercase() == Constants.ROBOT_UUID) {
+                                    // This IS an EV3, begin connection with device
                                     if (device.bondState == BluetoothDevice.BOND_NONE) {
-                                        println("BOND STATE FOUND TO BE NONE, CREATE BOND")
                                         device.createBond()
-                                    } else {
-                                        bluetoothService.connect(SelectedDevice.BluetoothDevice!!)
+                                        return
                                     }
-                                    return
                                 }
                             }
                     }
+                    // If we have reached here: no UUID matched the EV3 constant
+                    // TODO use a different way to inform user of failure
                     binding?.centeredText?.text = "This is not a Lego EV3."
                 }
+
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
                     // TO-DO
                     // ADD SOMETHING FOR THE IS BONDING STATE TO NOTE YOU NEED TO ACCEPT ON DEVICE!
@@ -76,12 +76,12 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Register for broadcasts when a device is discovered
+        // Register for UUID received, used to ensure this is an EV3
         val filter = IntentFilter(BluetoothDevice.ACTION_UUID)
+        // Register for all bond state changes (connect / disconnect / failed)
         val filterBond = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         requireActivity().registerReceiver(receiver, filter)
         requireActivity().registerReceiver(receiver, filterBond)
-
     }
 
     @SuppressLint("MissingPermission")
