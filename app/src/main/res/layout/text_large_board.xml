@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:visibility="visible">
+
+    <RelativeLayout
+        android:id="@+id/rel_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/tech_text_bg_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:src="@drawable/tech_button_2_off" />
+
+        <ImageView
+            android:id="@+id/tech_text_bg_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:alpha="0"
+            android:src="@drawable/tech_button_2_on"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/tech_text_bg_off"
+            android:layout_alignTop="@+id/tech_text_bg_off"
+            android:layout_alignEnd="@+id/tech_text_bg_off"
+            android:layout_alignBottom="@+id/tech_text_bg_off"
+            android:gravity="center"
+            android:weightSum="10">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:breakStrategy="simple"
+                    android:fontFamily="@font/red_alert_regular"
+                    android:gravity="center"
+                    android:shadowColor="@color/teal_700"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="10"
+                    android:text="@string/setup_button_grant_permissions"
+                    android:textColor="@color/teal_200"
+                    app:autoSizeTextType="uniform" />
+
+                <TextView
+                    android:id="@+id/text_subtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:shadowColor="@color/white"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="5"
+                    android:text="@string/setup_permissions_required_message"
+                    android:textColor="@color/grey"
+                    app:autoSizeTextType="uniform" />
+
+
+            </LinearLayout>
+            <!-- This is used as a horizontal spacer -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

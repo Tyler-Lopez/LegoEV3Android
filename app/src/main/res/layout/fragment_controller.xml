@@ -14,7 +14,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- This is the text bulletin board which will be located to the top-right -->
+        <include
+            android:id="@+id/text_large_board_layout"
+            layout="@layout/text_large_board"
+            android:layout_width="300dp"
+            android:layout_height="250dp"
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
+        <!-- Controllable Joystick, see JoystickView, Joystick, and JoystickThread -->
         <com.example.legoev3android.ui.views.JoystickView
             android:id="@+id/joystick_view"
             android:layout_width="350dp"
