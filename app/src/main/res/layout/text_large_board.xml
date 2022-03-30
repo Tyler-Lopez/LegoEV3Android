@@ -15,6 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Backgrounds, both off and on variety -->
         <ImageView
             android:id="@+id/tech_text_bg_off"
             android:layout_width="wrap_content"
@@ -30,6 +31,33 @@
             android:alpha="0"
             android:src="@drawable/tech_button_2_on"
             android:visibility="visible" />
+
+
+        <!-- Contains image to be displayed in the top-right section -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/tech_text_bg_off"
+            android:layout_alignTop="@+id/tech_text_bg_off"
+            android:layout_alignEnd="@+id/tech_text_bg_off"
+            android:layout_alignBottom="@+id/tech_text_bg_off"
+            android:orientation="horizontal"
+            android:weightSum="8.15">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="7.15"/>
+            <ImageView
+                android:id="@+id/loading_dots"
+                android:layout_width="0dp"
+                android:layout_gravity="end"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:src="@drawable/blue_geared_circle" />
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="wrap_content"

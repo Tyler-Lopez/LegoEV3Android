@@ -112,9 +112,12 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         }
 
+        /*
         binding?.buttonSound?.setOnClickListener {
             bluetoothService.playSound()
         }
+
+         */
         // TODO remove logic from this removed textview into a information menu
         //     binding?.centeredText?.text = "${SelectedDevice.BluetoothDevice?.bondState ?: "No bond"}"
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
