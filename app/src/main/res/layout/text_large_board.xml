@@ -43,6 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/tech_text_bg_off"
             android:layout_alignTop="@id/tech_text_bg_off"
+            android:layout_alignBottom="@id/tech_text_bg_off"
             android:layout_alignEnd="@+id/tech_text_bg_off"
             android:layout_centerInParent="true"
             android:orientation="horizontal"
@@ -53,6 +54,31 @@
                 android:layout_height="0dp"
                 android:layout_weight="87" />
 
+            <!-- The Linear in Relative is necessary to align vertically correctly -->
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:weightSum="100">
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="11"/>
+                    <ImageView
+                        android:id="@+id/loading_dots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/blue_geared_circle" />
+                </LinearLayout>
+
+            </RelativeLayout>
+            <!--
             <ImageView
                 android:id="@+id/loading_dots"
                 android:layout_width="0dp"
@@ -60,7 +86,7 @@
                 android:layout_gravity="end"
                 android:layout_weight="10"
                 android:adjustViewBounds="true"
-                android:src="@drawable/blue_geared_circle" />
+                android:src="@drawable/blue_geared_circle" />-->
 
             <View
                 android:layout_width="0dp"
