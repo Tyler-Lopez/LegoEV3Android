@@ -16,11 +16,14 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Backgrounds, both off and on variety -->
+        <!-- Adjust view bounds to prevent IV wrap_content from being too large -->
+        <!-- https://stackoverflow.com/questions/28503197/wrap-content-larger-than-actual-imageview -->
         <ImageView
             android:id="@+id/tech_text_bg_off"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
+            android:adjustViewBounds="true"
             android:src="@drawable/tech_button_2_off" />
 
         <ImageView
@@ -28,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
+            android:adjustViewBounds="true"
             android:alpha="0"
             android:src="@drawable/tech_button_2_on"
             android:visibility="visible" />
@@ -38,25 +42,69 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/tech_text_bg_off"
-            android:layout_alignTop="@+id/tech_text_bg_off"
+            android:layout_alignTop="@id/tech_text_bg_off"
             android:layout_alignEnd="@+id/tech_text_bg_off"
-            android:layout_alignBottom="@+id/tech_text_bg_off"
+            android:layout_centerInParent="true"
             android:orientation="horizontal"
-            android:weightSum="8.15">
+            android:weightSum="100">
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="7.15"/>
+                android:layout_weight="87" />
+
             <ImageView
                 android:id="@+id/loading_dots"
                 android:layout_width="0dp"
-                android:layout_gravity="end"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_gravity="end"
+                android:layout_weight="10"
+                android:adjustViewBounds="true"
                 android:src="@drawable/blue_geared_circle" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="3" />
+
+
+            <!--
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="10"
+                            android:background="@color/teal_700">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/teal_700"
+                                android:orientation="vertical"
+                                android:weightSum="100">
+
+                                <View
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="30"
+                                    android:background="@drawable/metal_background" />
+
+                                <ImageView
+                                    android:id="@+id/loading_dots"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="0dp"
+                                    android:adjustViewBounds="true"
+                                    android:layout_gravity="end"
+                                    android:layout_weight="10"
+                                    android:src="@drawable/blue_geared_circle" />-->
         </LinearLayout>
+        <!--
+        <ImageView
+            android:id="@+id/loading_dots"
+            android:layout_width="0dp"
+            android:layout_gravity="end"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.8"
+            android:src="@drawable/blue_geared_circle" />-->
 
 
         <LinearLayout
