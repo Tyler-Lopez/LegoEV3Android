@@ -43,8 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/tech_text_bg_off"
             android:layout_alignTop="@id/tech_text_bg_off"
-            android:layout_alignBottom="@id/tech_text_bg_off"
             android:layout_alignEnd="@+id/tech_text_bg_off"
+            android:layout_alignBottom="@id/tech_text_bg_off"
             android:layout_centerInParent="true"
             android:orientation="horizontal"
             android:weightSum="100">
@@ -52,22 +52,25 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="87" />
+                android:layout_weight="86.8" />
 
             <!-- The Linear in Relative is necessary to align vertically correctly -->
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="10">
+                android:layout_weight="11">
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:weightSum="100">
+
                     <View
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
-                        android:layout_weight="11"/>
+                        android:layout_weight="11" />
+
                     <ImageView
                         android:id="@+id/loading_dots"
                         android:layout_width="wrap_content"
@@ -78,50 +81,12 @@
                 </LinearLayout>
 
             </RelativeLayout>
-            <!--
-            <ImageView
-                android:id="@+id/loading_dots"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="10"
-                android:adjustViewBounds="true"
-                android:src="@drawable/blue_geared_circle" />-->
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="3" />
+                android:layout_weight="2.2" />
 
-
-            <!--
-                        <RelativeLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="10"
-                            android:background="@color/teal_700">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@color/teal_700"
-                                android:orientation="vertical"
-                                android:weightSum="100">
-
-                                <View
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="0dp"
-                                    android:layout_weight="30"
-                                    android:background="@drawable/metal_background" />
-
-                                <ImageView
-                                    android:id="@+id/loading_dots"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="0dp"
-                                    android:adjustViewBounds="true"
-                                    android:layout_gravity="end"
-                                    android:layout_weight="10"
-                                    android:src="@drawable/blue_geared_circle" />-->
         </LinearLayout>
         <!--
         <ImageView
