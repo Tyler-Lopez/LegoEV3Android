@@ -21,7 +21,6 @@
             android:weightSum="10">
 
             <!-- This is the text bulletin board which will contain connection information-->
-
             <!-- Controllable Joystick, see JoystickView, Joystick, and JoystickThread -->
             <include
                 android:id="@+id/text_large_board_layout"
