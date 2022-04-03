@@ -1,18 +1,13 @@
 package com.example.legoev3android.ui.fragments
 
 import android.annotation.SuppressLint
-import android.app.ActionBar
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.transition.Slide
-import android.transition.TransitionManager
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.LinearLayout
@@ -24,7 +19,6 @@ import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.databinding.TextLargeBoardBinding
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.viewmodels.MainViewModel
-import com.example.legoev3android.ui.views.Joystick
 import com.example.legoev3android.utils.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,6 +33,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     private var joystickSteerThread: MainViewModel.JoystickSteerThread? = null
 
     private lateinit var bluetoothService: MyBluetoothService
+
+    // Define animation which will be applied to the loading image view
+    private var rotateAnimation = RotateAnimation(
+        0f,
+        360f,
+        Animation.RELATIVE_TO_SELF,
+        0.5f,
+        Animation.RELATIVE_TO_SELF,
+        0.5f
+    )
 
     // This object is used to listen to all changes in bond state to device
     private val receiver = object : BroadcastReceiver() {
@@ -68,10 +72,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     }
 
                     // Failure to connect
-                    viewModel.connectionStatus = ConnectionStatus.ERROR
+                    adjustConnectionStatus(ConnectionStatus.ERROR)
                     // Device is either not reachable or is not an EV3
-                    viewModel.connectionMessage =
-                        R.string.controller_status_error_connecting_to_device
+                    // TODO
+                    textBoardBinding.textSubtext.text = getString(R.string.controller_status_error_connecting_to_device)
                 }
 
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
@@ -95,11 +99,11 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     // Invoked when we have bonded to a device which we have also confirmed is a LEGO EV3
     private fun startBluetoothServiceConnection(device: BluetoothDevice) {
         // Inform view model we have bonded and are now starting service
-        viewModel.connectionStatus = ConnectionStatus.CONNECTED
+        adjustConnectionStatus(ConnectionStatus.CONNECTED)
         // TODO
         // COME BACK TO THIS AND RETURN THE COMMENTED OUT LINE
         //viewModel.connectionMessage = R.string.controller_status_confirmed_EV3
-        viewModel.connectionMessage = R.string.controller_status_connected
+        textBoardBinding.textSubtext.text = getString(R.string.controller_status_connected)
         // Start BluetoothService Connection
         bluetoothService.connect(device)
     }
@@ -111,8 +115,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Assume that when we create this view we are ATTEMPTING TO CONNECT
-        viewModel.connectionStatus = ConnectionStatus.CONNECTING
         // Register for UUID received, used to ensure this is an EV3
         val filter = IntentFilter(BluetoothDevice.ACTION_UUID)
         // Register for all bond state changes (connect / disconnect / failed)
@@ -127,9 +129,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         binding = FragmentControllerBinding.bind(view)
 
-        // Set TextBoard Binding and begin the update text loop
+        // Set TextBoard Binding and change connection status for first time
         textBoardBinding = binding!!.textLargeBoardLayout
-        updateTextLoop()
+        rotateAnimation.duration = 3600
+        rotateAnimation.repeatCount = Animation.INFINITE
+        textBoardBinding.ivTopRightLoadingIcon.animation = rotateAnimation
+        rotateAnimation.start()
+        // Produce . . . animation next to Connected
+        loopLoadingDots()
+        // Set connection status to connecting
+        adjustConnectionStatus(ConnectionStatus.CONNECTING)
 
 
         // Establish our bluetooth service and what we should do upon successful connection
@@ -140,8 +149,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             }
             // This should mean the go ahead on we are connected
             // clean this code up later
-            joystickSteerThread = viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickView)
-            joystickDriveThread = viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView)
+            joystickSteerThread =
+                viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickViewRight)
+            joystickDriveThread =
+                viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView)
             joystickDriveThread!!.start()
             joystickSteerThread!!.start()
         }
@@ -151,16 +162,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             when (viewModel.connectionStatus) {
                 // If we are not connected and should begin a connection
                 ConnectionStatus.DISCONNECTED, ConnectionStatus.ERROR -> {
-                    viewModel.connectionStatus = ConnectionStatus.CONNECTING
-                    viewModel.connectionMessage = R.string.controller_status_confirm_EV3
+                    adjustConnectionStatus(ConnectionStatus.CONNECTING)
+                    textBoardBinding.textSubtext.text = getString(R.string.controller_status_confirm_EV3)
                     // Attempt to make a connection
                     // Probably add something here in the future to not fetch uuids if we've already checked this robot to be EV3
                     SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
                 }
                 // If we are currently connected and should stop connect
                 else -> {
-                    viewModel.connectionStatus = ConnectionStatus.DISCONNECTED
-                    viewModel.connectionMessage = R.string.controller_status_disconnected
+                    adjustConnectionStatus(ConnectionStatus.DISCONNECTED)
+                    textBoardBinding.textSubtext.text = getString( R.string.controller_status_disconnected)
                     // Disconnect cancels all active threads
                     bluetoothService.disconnect()
                     // FIX THIS IN FUTURE MAKE IT INTERRUPT BASED
@@ -187,122 +198,114 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         binding = null
     }
 
-    // Will constantly run in this fragment to update the text section of the UI including images
-    @SuppressLint("MissingPermission")
-    private fun updateTextLoop() {
-        // Define animation which will be applied to the loading image view
-        val rotateAnimation = RotateAnimation(
-            0f,
-            360f,
-            Animation.RELATIVE_TO_SELF,
-            0.5f,
-            Animation.RELATIVE_TO_SELF,
-            0.5f
-        )
-        rotateAnimation.duration = 3600
-        rotateAnimation.repeatCount = Animation.INFINITE
-
-        textBoardBinding.textDeviceName.text =
-            "${SelectedDevice.BluetoothDevice?.name}  ${SelectedDevice.BluetoothDevice?.address}"
-
-        // Used and updated to see if we have changed connection status
-        var lastConnectionStatus = ConnectionStatus.DISCONNECTED
-
-        // We will continue to loop within ViewModel scope, delaying every second.
-        // As soon as an update is made to the MainViewModel's connection status, we will reflect
-        // that here
+    private fun loopLoadingDots() {
         viewLifecycleOwner.lifecycleScope.launch {
-            while (true) {
-                // Change subtext if necessary
-                if (textBoardBinding.textSubtext.text != getString(viewModel.connectionMessage)
-                    || textBoardBinding.textHeader.text != getString(viewModel.connectionStatus.stringId)) {
-                    requireActivity().runOnUiThread {
-                        textBoardBinding.textHeader.text =
-                            getString(viewModel.connectionStatus.stringId)
-                        textBoardBinding.textSubtext.text = getString(viewModel.connectionMessage)
+            // Prevent memory leak with binding != null check
+            while (binding != null) {
+                textBoardBinding.textHeaderRight.text =
+                    when (textBoardBinding.textHeaderRight.text) {
+                        getString(R.string.controller_connecting_three) -> getString(R.string.controller_connecting_zero)
+                        getString(R.string.controller_connecting_two) + " " -> getString(
+                            R.string.controller_connecting_three
+                        )
+                        getString(R.string.controller_connecting_one) + "  " -> getString(
+                            R.string.controller_connecting_two
+                        ) + " "
+                        getString(R.string.controller_connecting_zero) -> getString(R.string.controller_connecting_one) + "  "
+                        else -> getString(R.string.controller_connecting_zero)
                     }
-                }
-
-                when (viewModel.connectionStatus) {
-                    ConnectionStatus.DISCONNECTED -> {
-                        // If we were previously not at an error state
-                        if (lastConnectionStatus != viewModel.connectionStatus) {
-                            // Cease connecting animation
-                            rotateAnimation.cancel()
-                            // Change connection animation to a error
-                            textBoardBinding.loadingDots.setImageResource(viewModel.connectionStatus.imageId)
-                            // Remove the ... which was present in CONNECTING on loop
-                            val params = textBoardBinding.textHeader.layoutParams
-                            params.width = LinearLayout.LayoutParams.MATCH_PARENT
-                            textBoardBinding.textHeader.layoutParams = params
-                            // Make button to connect appear visible
-                            textBoardBinding.rlConnectButton.visibility = View.VISIBLE
-                            textBoardBinding.tvConnectButton.text = "CONNECT"
-                        }
-                    }
-                    ConnectionStatus.ERROR -> {
-                        // If we were previously not at an error state
-                        if (lastConnectionStatus != viewModel.connectionStatus) {
-                            // Cease connecting animation
-                            rotateAnimation.cancel()
-                            // Change connection animation to a error
-                            textBoardBinding.loadingDots.setImageResource(viewModel.connectionStatus.imageId)
-                            // Remove the ... which was present in CONNECTING on loop
-                            val params = textBoardBinding.textHeader.layoutParams
-                            params.width = LinearLayout.LayoutParams.MATCH_PARENT
-                            textBoardBinding.textHeader.layoutParams = params
-                            // Make button to connect appear visible
-                            textBoardBinding.rlConnectButton.visibility = View.VISIBLE
-                            textBoardBinding.tvConnectButton.text = "CONNECT"
-                        }
-                    }
-                    ConnectionStatus.CONNECTING -> {
-                        // If needed, start animation and set image to loading dots
-                        if (lastConnectionStatus != viewModel.connectionStatus) {
-                            // Make connection button go away
-                            textBoardBinding.rlConnectButton.visibility = View.GONE
-                            textBoardBinding.loadingDots.setImageResource(viewModel.connectionStatus.imageId)
-                            textBoardBinding.loadingDots.startAnimation(rotateAnimation)
-                            // Add back the ...
-                            val params = textBoardBinding.textHeader.layoutParams
-                            params.width = 0 // 0 is because it is set by the weight sum
-                            params.height = 60
-                            textBoardBinding.textHeader.layoutParams = params
-                        }
-                        // Creating Connecting ... effect
-                        textBoardBinding.textHeaderRight.text =
-                            when (textBoardBinding.textHeaderRight.text) {
-                                getString(R.string.controller_connecting_three) -> getString(R.string.controller_connecting_zero)
-                                getString(R.string.controller_connecting_two) + " " -> getString(
-                                    R.string.controller_connecting_three
-                                )
-                                getString(R.string.controller_connecting_one) + "  " -> getString(
-                                    R.string.controller_connecting_two
-                                ) + " "
-                                getString(R.string.controller_connecting_zero) -> getString(R.string.controller_connecting_one) + "  "
-                                else -> getString(R.string.controller_connecting_zero)
-                            }
-                    }
-                    ConnectionStatus.CONNECTED -> {
-                        // If we were previously not at an error state
-                        if (lastConnectionStatus != viewModel.connectionStatus) {
-                            // Cease connecting animation
-                            rotateAnimation.cancel()
-                            // Change connection animation to a error
-                            textBoardBinding.loadingDots.setImageResource(viewModel.connectionStatus.imageId)
-                            // Remove the ... which was present in CONNECTING on loop
-                            val params = textBoardBinding.textHeader.layoutParams
-                            params.width = LinearLayout.LayoutParams.MATCH_PARENT
-                            textBoardBinding.textHeader.layoutParams = params
-                            // Make button to disconnect appear visible and change text
-                            textBoardBinding.rlConnectButton.visibility = View.VISIBLE
-                            textBoardBinding.tvConnectButton.text = "DISCONNECT"
-                        }
-                    }
-                }
-                lastConnectionStatus = viewModel.connectionStatus
                 delay(500)
             }
         }
+    }
+
+    private fun adjustConnectionStatus(connectionStatus: ConnectionStatus) {
+        // Inform view model of connection status change
+        viewModel.connectionStatus = connectionStatus
+        // Change HEADER text
+        textBoardBinding.textHeader.text = getString(viewModel.connectionStatus.stringId)
+        // Change image in the top-right
+        textBoardBinding.ivTopRightLoadingIcon.visibility =
+            if (connectionStatus == ConnectionStatus.CONNECTING)
+            View.VISIBLE else View.GONE
+
+        textBoardBinding.ivTopRightImage.visibility =
+            if (connectionStatus == ConnectionStatus.CONNECTING)
+                View.GONE else View.VISIBLE
+
+        textBoardBinding.ivTopRightLoadingIcon.clearAnimation()
+
+        textBoardBinding.ivTopRightImage.setImageResource(viewModel.connectionStatus.imageId)
+
+
+        when (connectionStatus) {
+            ConnectionStatus.CONNECTED -> {
+                changeTextBackground(true)
+                // Remove the ... which was present in CONNECTING on loop
+                val params = textBoardBinding.textHeader.layoutParams
+                params.width = LinearLayout.LayoutParams.MATCH_PARENT
+                textBoardBinding.textHeader.layoutParams = params
+                // Update button to attempt a new connection to make it visible
+                textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                textBoardBinding.tvConnectButton.text = "DISCONNECT"
+            }
+            ConnectionStatus.CONNECTING -> {
+                textBoardBinding.ivTopRightLoadingIcon.animation = rotateAnimation
+                rotateAnimation.start()
+                changeTextBackground(false)
+                // Add back the ...
+                val params = textBoardBinding.textHeader.layoutParams
+                params.width = 0 // 0 is because it is set by the weight sum
+                params.height = 60
+                textBoardBinding.textHeader.layoutParams = params
+                // Make connection button go away
+                textBoardBinding.rlConnectButton.visibility = View.GONE
+            }
+            ConnectionStatus.ERROR, ConnectionStatus.DISCONNECTED -> {
+                changeTextBackground(false)
+                // Remove the ... which was present in CONNECTING on loop
+                val params = textBoardBinding.textHeader.layoutParams
+                params.width = LinearLayout.LayoutParams.MATCH_PARENT
+                textBoardBinding.textHeader.layoutParams = params
+                // Update button to attempt a new connection to make it visible
+                textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                textBoardBinding.tvConnectButton.text = "CONNECT"
+            }
+        }
+    }
+
+    private fun changeTextBackground(isConnected: Boolean) {
+        // Animate between backgrounds with a fade, diff time to prevent low alpha
+        textBoardBinding
+            .techTextBgOff
+            .animate()
+            .alpha(if (isConnected) 0f else 1f)
+            .duration = if (isConnected) 2000 else 500
+        textBoardBinding
+            .techTextBgOn
+            .animate()
+            .alpha(if (isConnected) 1f else 0f)
+            .duration = if (isConnected) 500 else 2000
+        // Set header text appearance
+        textBoardBinding.textHeader.setTextAppearance(
+            if (isConnected)
+                R.style.TextDarkShadow
+            else
+                R.style.TextTealShadow
+        )
+        // Set subtext text appearance
+        textBoardBinding.textSubtext.setTextAppearance(
+            if (isConnected)
+                R.style.TextDarkShadow
+            else
+                R.style.TextLightShadow
+        )
+        // Set device text appearance
+        textBoardBinding.textDeviceName.setTextAppearance(
+            if (isConnected)
+                R.style.TextDarkShadow
+            else
+                R.style.TextTealShadow
+        )
     }
 }

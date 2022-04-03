@@ -209,7 +209,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         )
         rotateAnimation.duration = 3600
         rotateAnimation.repeatCount = Animation.INFINITE
-        permissionLayout.loadingDots.startAnimation(rotateAnimation)
+        permissionLayout.ivTopRightLoadingIcon.startAnimation(rotateAnimation)
 
         // Implement on-click listener for the permission layout button
         permissionLayout.techButtonBg.setOnClickListener {

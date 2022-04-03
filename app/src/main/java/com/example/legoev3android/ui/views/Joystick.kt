@@ -68,42 +68,7 @@ class Joystick(
 
 
     private fun drawOuterCircle(canvas: Canvas) {
-        /*
-        val outerStroke = Paint()
-        outerStroke.style = Paint.Style.STROKE
-        outerStroke.strokeWidth = 20f
-        outerStroke.shader = RadialGradient(
-            centerX,
-            centerY,
-            20f,
-            intArrayOf(Color.rgb(200, 150, 0),
-                Color.rgb(123, 100, 3)),
-            floatArrayOf(0f, 20f),
-            Shader.TileMode.MIRROR
-        )
-        outerStroke.maskFilter = BlurMaskFilter(0.5f, BlurMaskFilter.Blur.INNER)
 
-        outerPaint.shader = RadialGradient(
-            centerX,
-            centerY,
-            outerCircleRadius,
-            intArrayOf(Color.rgb(70, 70, 70),
-                Color.rgb(40, 40, 40)),
-            floatArrayOf(0f, outerCircleRadius),
-            Shader.TileMode.MIRROR
-        )
-        canvas.drawCircle(
-            centerX,
-            centerY,
-            outerCircleRadius,
-            outerPaint
-        )
-        canvas.drawCircle(
-            centerX,
-            centerY,
-            outerCircleRadius,
-            outerStroke
-        )*/
         val shadowPaint = Paint()
         shadowPaint.color = Color.argb(80, 20, 20, 20)
         shadowPaint.maskFilter = BlurMaskFilter(8f, BlurMaskFilter.Blur.NORMAL)
@@ -113,7 +78,7 @@ class Joystick(
             outerCircleRadius + 10f,
             shadowPaint
         )
-        val mMarker = BitmapFactory.decodeResource(context.resources, R.drawable.outer_joystick_image)
+        val mMarker = BitmapFactory.decodeResource(context.resources, R.drawable.outer_joystick_on)
         canvas.drawBitmap(
             Bitmap.createScaledBitmap(mMarker, (outerCircleRadius * 2).toInt(), (outerCircleRadius * 2).toInt(), false),
             centerX  - outerCircleRadius,
