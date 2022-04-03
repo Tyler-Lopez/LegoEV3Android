@@ -99,7 +99,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         // TODO
         // COME BACK TO THIS AND RETURN THE COMMENTED OUT LINE
         //viewModel.connectionMessage = R.string.controller_status_confirmed_EV3
-        viewModel.connectionMessage = "Connected to LEGO EV3 Device"
+        viewModel.connectionMessage = R.string.controller_status_connected
         // Start BluetoothService Connection
         bluetoothService.connect(device)
     }
