@@ -52,13 +52,13 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="86.8" />
+                android:layout_weight="87.25" />
 
             <!-- The Linear in Relative is necessary to align vertically correctly -->
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="11">
+                android:layout_weight="10">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -77,7 +77,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
                         android:adjustViewBounds="true"
-                        android:src="@drawable/blue_geared_circle" />
+                        android:src="@drawable/teal_loading" />
                 </LinearLayout>
 
             </RelativeLayout>
@@ -85,17 +85,9 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="2.2" />
+                android:layout_weight="2.75" />
 
         </LinearLayout>
-        <!--
-        <ImageView
-            android:id="@+id/loading_dots"
-            android:layout_width="0dp"
-            android:layout_gravity="end"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            android:src="@drawable/blue_geared_circle" />-->
 
 
         <LinearLayout
@@ -115,33 +107,104 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/text_header"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:breakStrategy="simple"
-                    android:fontFamily="@font/red_alert_regular"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="100">
+
+                    <TextView
+                        android:id="@+id/text_header"
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+                        android:layout_weight="78"
+                        android:layout_gravity="center"
+                        android:breakStrategy="simple"
+                        android:fontFamily="@font/orbitron_bold"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="CONNECTING"
+                        android:textAppearance="@style/TextTealShadow"
+                        app:autoSizeTextType="uniform" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2" />
+
+                    <TextView
+                        android:id="@+id/text_header_right"
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+                        android:layout_weight="20"
+                        android:breakStrategy="simple"
+                        android:gravity="top"
+                        android:maxLines="1"
+                        android:text="..."
+                        android:textAppearance="@style/TextTealShadow"
+                        android:textSize="30sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/text_device_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
                     android:gravity="center"
-                    android:shadowColor="@color/teal_700"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="10"
-                    android:text="@string/setup_button_grant_permissions"
-                    android:textColor="@color/teal_200"
+                    android:text="LegoEV3 00:16:53:01:3C:09"
+                    android:textAppearance="@style/TextTealShadow"
                     app:autoSizeTextType="uniform" />
 
                 <TextView
                     android:id="@+id/text_subtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:text="Confirming Device is a compatible LEGO EV3"
+                    android:textAppearance="@style/TextLightShadow"
+                    app:autoSizeTextType="uniform" />
+                <!-- Used to allow user to DISCONNECT / CONNECT after failed connect -->
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:id="@+id/rl_connect_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:shadowColor="@color/white"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="5"
-                    android:text="@string/setup_permissions_required_message"
-                    android:textColor="@color/grey"
-                    app:autoSizeTextType="uniform" />
+                    android:visibility="gone">
+                    <Button
+                        android:id="@+id/button_connect_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/semi_transparent_black"
+                        />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:elevation="10dp"
+                        android:gravity="center"
+                        android:layout_alignTop="@id/button_connect_button"
+                        android:layout_alignBottom="@id/button_connect_button"
+                        android:layout_alignStart="@id/button_connect_button"
+                        android:layout_alignEnd="@id/button_connect_button">
+                        <ImageView
+                            android:id="@+id/iv_connect_button"
+                            android:layout_width="30dp"
+                            android:padding="8dp"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/white_bluetooth"
+                            />
+                        <TextView
+                            android:id="@+id/tv_connect_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CONNECT"
+                            android:textSize="18sp"
+                            android:maxLines="1"
+                            android:textColor="@color/white"
+                            />
+                    </LinearLayout>
+
+                </RelativeLayout>
 
 
             </LinearLayout>

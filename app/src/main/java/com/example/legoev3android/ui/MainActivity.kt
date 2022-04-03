@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestMultiple
 import androidx.appcompat.app.ActionBar
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.ActivityMainBinding
+import com.example.legoev3android.utils.ConnectionStatus
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -2,6 +2,7 @@ package com.example.legoev3android.ui.viewmodels
 
 import android.bluetooth.BluetoothAdapter
 import androidx.lifecycle.ViewModel
+import com.example.legoev3android.R
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.views.JoystickView
 import com.example.legoev3android.utils.*
@@ -11,6 +12,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor() : ViewModel() {
+
+    var connectionStatus = ConnectionStatus.DISCONNECTED
+    var connectionMessage = R.string.controller_status_confirm_EV3
 
     inner class JoystickDriveThread(
         private val bluetoothService: MyBluetoothService,
@@ -37,7 +41,6 @@ class MainViewModel @Inject constructor() : ViewModel() {
                                     )
                             )
                     }
-
                 sleep(15)
             }
         }

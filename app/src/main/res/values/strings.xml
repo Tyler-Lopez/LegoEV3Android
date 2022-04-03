@@ -8,4 +8,22 @@
     <string name="setup_permissions_required_message">Location / Bluetooth Access Required</string>
     <string name="setup_button_grant_permissions">GRANT PERMISSIONS</string>
     <string name="setup_permissions_denied">Permissions are required for this app to function.</string>
+    <!-- CONTROLLER FRAGMENT -->
+
+    <string name="controller_status_confirm_EV3">Confirming if device is a LEGO EV3</string>
+    <string name="controller_status_error_confirm_EV3">Device is NOT a LEGO EV3</string>
+    <string name="controller_status_confirmed_EV3">Device is a LEGO EV3, attempting to connect</string>
+
+    <string name="controller_status_error_connecting_to_device">Unable to connect to the device</string>
+
+    <string name="controller_disconnected">DISCONNECTED</string>
+    <string name="controller_error">ERROR</string>
+    <string name="controller_connecting">CONNECTING</string>
+    <string name="controller_connected">CONNECTED</string>
+    <string name="controller_connecting_zero"/>
+    <string name="controller_connecting_one">.</string>
+    <string name="controller_connecting_two">..</string>
+    <!-- Do not take suggestion to change ... -->
+    <string name="controller_connecting_three">...</string>
+
 </resources>
