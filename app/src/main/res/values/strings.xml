@@ -12,8 +12,9 @@
 
     <string name="controller_status_confirm_EV3">Confirming if device is a LEGO EV3</string>
     <string name="controller_status_error_confirm_EV3">Device is NOT a LEGO EV3</string>
+    <string name="controller_status_connected">Connected to LEGO EV3 Device</string>
     <string name="controller_status_confirmed_EV3">Device is a LEGO EV3, attempting to connect</string>
-
+    <string name="controller_status_disconnected">Disconnected from LEGO EV3 Device</string>
     <string name="controller_status_error_connecting_to_device">Unable to connect to the device</string>
 
     <string name="controller_disconnected">DISCONNECTED</string>

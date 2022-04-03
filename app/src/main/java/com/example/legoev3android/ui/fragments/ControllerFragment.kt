@@ -24,6 +24,7 @@ import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.databinding.TextLargeBoardBinding
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.viewmodels.MainViewModel
+import com.example.legoev3android.ui.views.Joystick
 import com.example.legoev3android.utils.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,6 +35,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
     private var binding: FragmentControllerBinding? = null
     private lateinit var textBoardBinding: TextLargeBoardBinding
+    private var joystickDriveThread: MainViewModel.JoystickDriveThread? = null
+    private var joystickSteerThread: MainViewModel.JoystickSteerThread? = null
 
     private lateinit var bluetoothService: MyBluetoothService
 
@@ -51,11 +54,13 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                         if (!device.uuids.isNullOrEmpty())
                             device.uuids.forEach {
                                 if ("${it.uuid}".uppercase() == Constants.ROBOT_UUID) {
-                                    viewModel.connectionMessage =
-                                        R.string.controller_status_confirmed_EV3
-                                    // This IS an EV3, begin connection with device
+                                    // This IS an EV3, and we have not yet bonded, bond
                                     if (device.bondState == BluetoothDevice.BOND_NONE) {
                                         device.createBond()
+                                        return
+                                        // This IS an EV3 we have bonded to before, start service
+                                    } else if (device.bondState == BluetoothDevice.BOND_BONDED) {
+                                        startBluetoothServiceConnection(device)
                                         return
                                     }
                                 }
@@ -76,7 +81,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     if (device?.bondState == BluetoothDevice.BOND_BONDED) {
-                        bluetoothService.connect(device)
+                        // Begin bluetooth service
+                        startBluetoothServiceConnection(device)
                     }
                     // TODO remove logic from this removed textview into a information menu
                     // device?.let { binding?.centeredText?.text = device.bondState.toString() }
@@ -84,6 +90,18 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 else -> println("HERE HERE $intent ${intent.action}")
             }
         }
+    }
+
+    // Invoked when we have bonded to a device which we have also confirmed is a LEGO EV3
+    private fun startBluetoothServiceConnection(device: BluetoothDevice) {
+        // Inform view model we have bonded and are now starting service
+        viewModel.connectionStatus = ConnectionStatus.CONNECTED
+        // TODO
+        // COME BACK TO THIS AND RETURN THE COMMENTED OUT LINE
+        //viewModel.connectionMessage = R.string.controller_status_confirmed_EV3
+        viewModel.connectionMessage = "Connected to LEGO EV3 Device"
+        // Start BluetoothService Connection
+        bluetoothService.connect(device)
     }
 
     /*
@@ -116,12 +134,16 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         // Establish our bluetooth service and what we should do upon successful connection
         bluetoothService = MyBluetoothService(requireContext()) {
+            println("WE INVOKED THIS")
             requireActivity().runOnUiThread {
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
             }
             // This should mean the go ahead on we are connected
-            viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickView).start()
-            viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView).start()
+            // clean this code up later
+            joystickSteerThread = viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickView)
+            joystickDriveThread = viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView)
+            joystickDriveThread!!.start()
+            joystickSteerThread!!.start()
         }
 
         // Establish what should happen if the CONNECT / DISCONNECT button is pushed
@@ -132,9 +154,21 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     viewModel.connectionStatus = ConnectionStatus.CONNECTING
                     viewModel.connectionMessage = R.string.controller_status_confirm_EV3
                     // Attempt to make a connection
+                    // Probably add something here in the future to not fetch uuids if we've already checked this robot to be EV3
                     SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
                 }
+                // If we are currently connected and should stop connect
                 else -> {
+                    viewModel.connectionStatus = ConnectionStatus.DISCONNECTED
+                    viewModel.connectionMessage = R.string.controller_status_disconnected
+                    // Disconnect cancels all active threads
+                    bluetoothService.disconnect()
+                    // FIX THIS IN FUTURE MAKE IT INTERRUPT BASED
+                    joystickDriveThread?.stopThreadSafely()
+                    joystickSteerThread?.stopThreadSafely()
+                    // https://stackoverflow.com/questions/8505707/android-best-and-safe-way-to-stop-thread
+                    joystickDriveThread = null
+                    joystickSteerThread = null
 
                 }
             }
@@ -180,7 +214,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         viewLifecycleOwner.lifecycleScope.launch {
             while (true) {
                 // Change subtext if necessary
-                if (textBoardBinding.textSubtext.text != getString(viewModel.connectionMessage)) {
+                if (textBoardBinding.textSubtext.text != getString(viewModel.connectionMessage)
+                    || textBoardBinding.textHeader.text != getString(viewModel.connectionStatus.stringId)) {
                     requireActivity().runOnUiThread {
                         textBoardBinding.textHeader.text =
                             getString(viewModel.connectionStatus.stringId)
@@ -190,7 +225,20 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
                 when (viewModel.connectionStatus) {
                     ConnectionStatus.DISCONNECTED -> {
-
+                        // If we were previously not at an error state
+                        if (lastConnectionStatus != viewModel.connectionStatus) {
+                            // Cease connecting animation
+                            rotateAnimation.cancel()
+                            // Change connection animation to a error
+                            textBoardBinding.loadingDots.setImageResource(viewModel.connectionStatus.imageId)
+                            // Remove the ... which was present in CONNECTING on loop
+                            val params = textBoardBinding.textHeader.layoutParams
+                            params.width = LinearLayout.LayoutParams.MATCH_PARENT
+                            textBoardBinding.textHeader.layoutParams = params
+                            // Make button to connect appear visible
+                            textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                            textBoardBinding.tvConnectButton.text = "CONNECT"
+                        }
                     }
                     ConnectionStatus.ERROR -> {
                         // If we were previously not at an error state
@@ -205,6 +253,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                             textBoardBinding.textHeader.layoutParams = params
                             // Make button to connect appear visible
                             textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                            textBoardBinding.tvConnectButton.text = "CONNECT"
                         }
                     }
                     ConnectionStatus.CONNECTING -> {
@@ -235,7 +284,20 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                             }
                     }
                     ConnectionStatus.CONNECTED -> {
-
+                        // If we were previously not at an error state
+                        if (lastConnectionStatus != viewModel.connectionStatus) {
+                            // Cease connecting animation
+                            rotateAnimation.cancel()
+                            // Change connection animation to a error
+                            textBoardBinding.loadingDots.setImageResource(viewModel.connectionStatus.imageId)
+                            // Remove the ... which was present in CONNECTING on loop
+                            val params = textBoardBinding.textHeader.layoutParams
+                            params.width = LinearLayout.LayoutParams.MATCH_PARENT
+                            textBoardBinding.textHeader.layoutParams = params
+                            // Make button to disconnect appear visible and change text
+                            textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                            textBoardBinding.tvConnectButton.text = "DISCONNECT"
+                        }
                     }
                 }
                 lastConnectionStatus = viewModel.connectionStatus

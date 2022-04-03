@@ -36,9 +36,14 @@ class MyBluetoothService(
         mThreads.startConnection(device)
     }
 
+    fun disconnect() {
+        // Just cancels threads and updates state without nullifying adapter
+        mThreads.cancelThreads()
+        mState = Constants.STATE_NONE
+    }
 
     fun destroy() {
-        MyThreads().cancelThreads()
+        mThreads.cancelThreads()
         mAdapter = null
         mState = Constants.STATE_NONE
     }
@@ -108,6 +113,7 @@ class MyBluetoothService(
         private var mReadDataThread: ConnectedThread? = null
 
         fun cancelThreads() {
+            mConnectThread?.cancel().also { mConnectThread = null }
             mDriveThread?.cancel().also { mDriveThread = null }
             mSteerThread?.cancel().also { mSteerThread = null }
             mSoundThread?.cancel().also { mSoundThread = null }
@@ -115,7 +121,9 @@ class MyBluetoothService(
         }
 
         fun startConnection(device: BluetoothDevice) {
+            println("START CONNECTION INVOKED")
             mConnectThread = ConnectThread(device)
+            println("CREATED CONNECT THREAD")
             mConnectThread?.start()
         }
 
@@ -127,59 +135,79 @@ class MyBluetoothService(
         @SuppressLint("MissingPermission")
         private inner class ConnectThread(device: BluetoothDevice) : Thread() {
 
-            private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
+            private var mmSocket: BluetoothSocket? =
                 device.createRfcommSocketToServiceRecord(UUID.fromString(Constants.ROBOT_UUID))
-            }
+
 
             override fun run() {
+                if (mmSocket == null)
+                    println("Socket is null")
+                else println("SOCKET IS NOT NULL")
+                println(mmSocket?.isConnected)
+                println("Attempting to cancel discovery on adapter")
                 mAdapter?.cancelDiscovery()
+                println("Canceled adapter discovery")
                 try {
                     mmSocket?.let { socket ->
+                        println("Attempting to connect to socket")
                         socket.connect()
+                        println("Connected to socket")
                         mDriveThread = ConnectedThread(socket)
                         mSteerThread = ConnectedThread(socket)
                         mReadDataThread = ConnectedThread(socket)
                         mSoundThread = ConnectedThread(socket)
                         mState = Constants.STATE_CONNECTED
+                        println("Just about to inform of connection")
                         debug() // Really bad way of informing we made connection, fix this later
                     }
                 } catch (e: IOException) {
+                    println("EXCEPTION THROWN $e")
                     Timber.e(e) // Log error
                 }
             }
 
             fun cancel() {
+
                 try {
+                    mmSocket?.inputStream?.close()
+                    mmSocket?.outputStream?.close()
                     mmSocket?.close()
+                    mmSocket = null
                 } catch (e: IOException) {
+                    println("Could not close the client socket $e")
                     // Could not close the client socket
                 }
             }
         }
 
-        private inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
-            private val mmInStream: InputStream = mmSocket.inputStream
-            private val mmOutStream: OutputStream = mmSocket.outputStream
+        private inner class ConnectedThread(private var mmSocket: BluetoothSocket?) : Thread() {
+            private var mmInStream: InputStream? = mmSocket?.inputStream
+            private var mmOutStream: OutputStream? = mmSocket?.outputStream
 
 
             fun readInput(
                 mmBuffer: ByteArray,
                 listener: (Float) -> Unit
             ) {
-                val reply = ByteArray(24)
-                mmOutStream.write(mmBuffer)
-                mmInStream.read(reply)
-                listener(
-                    ByteBuffer.wrap(
-                        reply.copyOfRange(5, 9).reversedArray()
-                    ).float
-                )
+                try {
+                    val reply = ByteArray(24)
+                    mmOutStream?.write(mmBuffer)
+                    mmInStream?.read(reply)
+                    listener(
+                        ByteBuffer.wrap(
+                            reply.copyOfRange(5, 9).reversedArray()
+                        ).float
+                    )
+                } catch (e: IOException) {
+                    println("Socket closed while reading $e")
+                }
+
             }
 
             fun writeToOutput(mmBuffer: ByteArray) {
                 try {
-                    mmOutStream.write(mmBuffer)
-                    mmOutStream.flush()
+                    mmOutStream?.write(mmBuffer)
+                    mmOutStream?.flush()
                 } catch (e: Exception) {
                     println(e.localizedMessage + " ERROR HAPPENED MOVING MOTOR")
                 }
@@ -187,7 +215,12 @@ class MyBluetoothService(
 
             fun cancel() {
                 try {
-                    mmSocket.close()
+                    mmInStream?.close()
+                    mmInStream = null
+                    mmOutStream?.close()
+                    mmOutStream = null
+                    mmSocket?.close()
+                    mmSocket = null
                 } catch (e: IOException) {
                     // Could not close the connect socket
                 }
