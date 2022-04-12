@@ -108,7 +108,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
         if (permissionLayout.mainLayout.visibility != View.GONE) {
             // Animate OUT permission layout
             val transition = Slide()
-            transition.slideEdge = Gravity.START
+            transition.slideEdge = Gravity.BOTTOM
             transition.addTarget(permissionLayout.mainLayout)
             transition.duration = 1200
             TransitionManager.beginDelayedTransition(

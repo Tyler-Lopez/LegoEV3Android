@@ -14,7 +14,26 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor() : ViewModel() {
 
     var connectionStatus = ConnectionStatus.DISCONNECTED
-    var connectionMessage = R.string.controller_status_confirm_EV3
+
+    // Invoked to return a stream of data representing battery status
+    inner class MonitorConnectionThread(
+        private val bluetoothService: MyBluetoothService,
+        private val batteryCallback: (Int) -> Unit
+    ) : Thread() {
+        @Volatile
+        private var isRunning = true
+
+        fun stopThreadSafely() {
+            isRunning = false
+        }
+
+        override fun run() {
+            super.run()
+            while (isRunning) {
+
+            }
+        }
+    }
 
     inner class JoystickDriveThread(
         private val bluetoothService: MyBluetoothService,

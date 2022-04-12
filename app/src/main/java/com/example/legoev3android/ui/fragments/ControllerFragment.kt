@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.example.legoev3android.R
 import com.example.legoev3android.databinding.FragmentControllerBinding
 import com.example.legoev3android.databinding.TextLargeBoardBinding
@@ -98,14 +99,14 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
     // Invoked when we have bonded to a device which we have also confirmed is a LEGO EV3
     private fun startBluetoothServiceConnection(device: BluetoothDevice) {
-        // Inform view model we have bonded and are now starting service
-        adjustConnectionStatus(ConnectionStatus.CONNECTED)
-        // TODO
-        // COME BACK TO THIS AND RETURN THE COMMENTED OUT LINE
-        //viewModel.connectionMessage = R.string.controller_status_confirmed_EV3
-        textBoardBinding.textSubtext.text = getString(R.string.controller_status_connected)
-        // Start BluetoothService Connection
         bluetoothService.connect(device)
+        // ASYNC call after attempting connection
+        viewModel.viewModelScope.launch {
+            // If, in 10 seconds a connection has not been made - stop attempting connection
+            delay(10000)
+            if (viewModel.connectionStatus == ConnectionStatus.CONNECTING)
+                disconnectSafely()
+        }
     }
 
     /*
@@ -143,7 +144,11 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
         // Establish our bluetooth service and what we should do upon successful connection
         bluetoothService = MyBluetoothService(requireContext()) {
-            println("WE INVOKED THIS")
+
+            // Inform view model we have bonded and are now starting service
+            adjustConnectionStatus(ConnectionStatus.CONNECTED)
+            textBoardBinding.textSubtext.text = getString(R.string.controller_status_connected)
+
             requireActivity().runOnUiThread {
                 binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
             }
@@ -169,23 +174,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
                 }
                 // If we are currently connected and should stop connect
-                else -> {
-                    adjustConnectionStatus(ConnectionStatus.DISCONNECTED)
-                    textBoardBinding.textSubtext.text = getString( R.string.controller_status_disconnected)
-                    // Disconnect cancels all active threads
-                    bluetoothService.disconnect()
-                    // FIX THIS IN FUTURE MAKE IT INTERRUPT BASED
-                    joystickDriveThread?.stopThreadSafely()
-                    joystickSteerThread?.stopThreadSafely()
-                    // https://stackoverflow.com/questions/8505707/android-best-and-safe-way-to-stop-thread
-                    joystickDriveThread = null
-                    joystickSteerThread = null
-
-                }
+                else -> disconnectSafely()
             }
 
         }
-
         // Attempt to make a connection
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
     }
@@ -223,53 +215,54 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         // Inform view model of connection status change
         viewModel.connectionStatus = connectionStatus
         // Change HEADER text
-        textBoardBinding.textHeader.text = getString(viewModel.connectionStatus.stringId)
-        // Change image in the top-right
-        textBoardBinding.ivTopRightLoadingIcon.visibility =
-            if (connectionStatus == ConnectionStatus.CONNECTING)
-            View.VISIBLE else View.GONE
+        requireActivity().runOnUiThread {
+            textBoardBinding.textHeader.text = getString(viewModel.connectionStatus.stringId)
+            // Change image in the top-right
+            textBoardBinding.ivTopRightLoadingIcon.visibility =
+                if (connectionStatus == ConnectionStatus.CONNECTING)
+                    View.VISIBLE else View.GONE
 
-        textBoardBinding.ivTopRightImage.visibility =
-            if (connectionStatus == ConnectionStatus.CONNECTING)
-                View.GONE else View.VISIBLE
+            textBoardBinding.ivTopRightImage.visibility =
+                if (connectionStatus == ConnectionStatus.CONNECTING)
+                    View.GONE else View.VISIBLE
 
-        textBoardBinding.ivTopRightLoadingIcon.clearAnimation()
+            textBoardBinding.ivTopRightLoadingIcon.clearAnimation()
 
-        textBoardBinding.ivTopRightImage.setImageResource(viewModel.connectionStatus.imageId)
+            textBoardBinding.ivTopRightImage.setImageResource(viewModel.connectionStatus.imageId)
 
-
-        when (connectionStatus) {
-            ConnectionStatus.CONNECTED -> {
-                changeTextBackground(true)
-                // Remove the ... which was present in CONNECTING on loop
-                val params = textBoardBinding.textHeader.layoutParams
-                params.width = LinearLayout.LayoutParams.MATCH_PARENT
-                textBoardBinding.textHeader.layoutParams = params
-                // Update button to attempt a new connection to make it visible
-                textBoardBinding.rlConnectButton.visibility = View.VISIBLE
-                textBoardBinding.tvConnectButton.text = "DISCONNECT"
-            }
-            ConnectionStatus.CONNECTING -> {
-                textBoardBinding.ivTopRightLoadingIcon.animation = rotateAnimation
-                rotateAnimation.start()
-                changeTextBackground(false)
-                // Add back the ...
-                val params = textBoardBinding.textHeader.layoutParams
-                params.width = 0 // 0 is because it is set by the weight sum
-                params.height = 60
-                textBoardBinding.textHeader.layoutParams = params
-                // Make connection button go away
-                textBoardBinding.rlConnectButton.visibility = View.GONE
-            }
-            ConnectionStatus.ERROR, ConnectionStatus.DISCONNECTED -> {
-                changeTextBackground(false)
-                // Remove the ... which was present in CONNECTING on loop
-                val params = textBoardBinding.textHeader.layoutParams
-                params.width = LinearLayout.LayoutParams.MATCH_PARENT
-                textBoardBinding.textHeader.layoutParams = params
-                // Update button to attempt a new connection to make it visible
-                textBoardBinding.rlConnectButton.visibility = View.VISIBLE
-                textBoardBinding.tvConnectButton.text = "CONNECT"
+            when (connectionStatus) {
+                ConnectionStatus.CONNECTED -> {
+                    changeTextBackground(true)
+                    // Remove the ... which was present in CONNECTING on loop
+                    val params = textBoardBinding.textHeader.layoutParams
+                    params.width = LinearLayout.LayoutParams.MATCH_PARENT
+                    textBoardBinding.textHeader.layoutParams = params
+                    // Update button to attempt a new connection to make it visible
+                    textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                    textBoardBinding.tvConnectButton.text = "DISCONNECT"
+                }
+                ConnectionStatus.CONNECTING -> {
+                    textBoardBinding.ivTopRightLoadingIcon.animation = rotateAnimation
+                    rotateAnimation.start()
+                    changeTextBackground(false)
+                    // Add back the ...
+                    val params = textBoardBinding.textHeader.layoutParams
+                    params.width = 0 // 0 is because it is set by the weight sum
+                    params.height = 60
+                    textBoardBinding.textHeader.layoutParams = params
+                    // Make connection button go away
+                    textBoardBinding.rlConnectButton.visibility = View.GONE
+                }
+                ConnectionStatus.ERROR, ConnectionStatus.DISCONNECTED -> {
+                    changeTextBackground(false)
+                    // Remove the ... which was present in CONNECTING on loop
+                    val params = textBoardBinding.textHeader.layoutParams
+                    params.width = LinearLayout.LayoutParams.MATCH_PARENT
+                    textBoardBinding.textHeader.layoutParams = params
+                    // Update button to attempt a new connection to make it visible
+                    textBoardBinding.rlConnectButton.visibility = View.VISIBLE
+                    textBoardBinding.tvConnectButton.text = "CONNECT"
+                }
             }
         }
     }
@@ -307,5 +300,21 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             else
                 R.style.TextTealShadow
         )
+    }
+
+    private fun disconnectSafely() {
+
+        requireActivity().runOnUiThread {
+            adjustConnectionStatus(ConnectionStatus.DISCONNECTED)
+            textBoardBinding.textSubtext.text = getString(R.string.controller_status_disconnected)
+        }
+        // Disconnect cancels all active threads
+        bluetoothService.disconnect()
+        // FIX THIS IN FUTURE MAKE IT INTERRUPT BASED
+        joystickDriveThread?.stopThreadSafely()
+        joystickSteerThread?.stopThreadSafely()
+        // https://stackoverflow.com/questions/8505707/android-best-and-safe-way-to-stop-thread
+        joystickDriveThread = null
+        joystickSteerThread = null
     }
 }
