@@ -33,10 +33,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
     private var binding: FragmentControllerBinding? = null
     private lateinit var textBoardBinding: TextLargeBoardBinding
-//    private var joystickDriveThread: MainViewModel.JoystickDriveThread? = null
-  //  private var joystickSteerThread: MainViewModel.JoystickSteerThread? = null
-
-    private lateinit var bluetoothService: MyBluetoothService
 
     // Define animation which will be applied to the loading image view
     private var rotateAnimation = RotateAnimation(
@@ -74,12 +70,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                                 }
                             }
                     }
-
-                    // Failure to connect
-                    adjustConnectionStatus(ConnectionStatus.ERROR)
-                    // Device is either not reachable or is not an EV3
-                    // TODO
-                    textBoardBinding.textSubtext.text = getString(R.string.controller_status_error_connecting_to_device)
+                    viewModel.updateConnection(ConnectionStatus.ERROR)
                 }
 
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
@@ -89,7 +80,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     if (device?.bondState == BluetoothDevice.BOND_BONDED) {
-                        // Begin bluetooth service
+                        // Begin bluetoothService service
                         startBluetoothServiceConnection(device)
                     }
                     // TODO remove logic from this removed textview into a information menu
@@ -102,26 +93,14 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
     // Invoked when we have bonded to a device which we have also confirmed is a LEGO EV3
     private fun startBluetoothServiceConnection(device: BluetoothDevice) {
-        bluetoothService.connect(device)
-        // ASYNC call after attempting connection
-        viewModel.viewModelScope.launch {
-            // If, in 10 seconds a connection has not been made - stop attempting connection
-            delay(10000)
-            if (viewModel.connectionStatus == ConnectionStatus.CONNECTING)
-                disconnectSafely()
-        }
+        viewModel.connectBluetoothService(device)
+        // TODO Add back in time-out feature
     }
 
-    /*
-
-    FRAGMENT OVERRIDES
-
-     */
+    // Register for UUID changes and Bond State changes
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Register for UUID received, used to ensure this is an EV3
         val filter = IntentFilter(BluetoothDevice.ACTION_UUID)
-        // Register for all bond state changes (connect / disconnect / failed)
         val filterBond = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         requireActivity().registerReceiver(receiver, filter)
         requireActivity().registerReceiver(receiver, filterBond)
@@ -130,7 +109,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding = FragmentControllerBinding.bind(view)
 
         // Set TextBoard Binding and change connection status for first time
@@ -139,51 +117,39 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         rotateAnimation.repeatCount = Animation.INFINITE
         textBoardBinding.ivTopRightLoadingIcon.animation = rotateAnimation
         rotateAnimation.start()
+
         // Produce . . . animation next to Connected
         loopLoadingDots()
+
         // Set connection status to connecting
-        adjustConnectionStatus(ConnectionStatus.CONNECTING)
+        viewModel.updateConnection(ConnectionStatus.CONNECTING)
 
-
-        // Establish our bluetooth service and what we should do upon successful connection
-        bluetoothService = MyBluetoothService(requireContext()) {
-
-            // Inform view model we have bonded and are now starting service
-            adjustConnectionStatus(ConnectionStatus.CONNECTED)
-            textBoardBinding.textSubtext.text = getString(R.string.controller_status_connected)
-
-            requireActivity().runOnUiThread {
-                binding?.constrainLayoutSuccessConnection?.visibility = View.VISIBLE
-            }
-            // This should mean the go ahead on we are connected
-            // clean this code up later
-            viewModel.beginMonitorBattery(bluetoothService) {
-                println("in ui")
-            }
-            viewModel.beginJoystickDrive(bluetoothService, binding!!.joystickView)
-            viewModel.beginJoystickSteer(bluetoothService, binding!!.joystickViewRight)
-
-        }
+        // Establish our bluetoothService service and what we should do upon successful connection
+        viewModel.createBluetoothService(
+            requireActivity(),
+            binding!!.joystickView,
+            binding!!.joystickViewRight
+        )
 
         // Establish what should happen if the CONNECT / DISCONNECT button is pushed
         textBoardBinding.buttonConnectButton.setOnClickListener {
             when (viewModel.connectionStatus) {
                 // If we are not connected and should begin a connection
                 ConnectionStatus.DISCONNECTED, ConnectionStatus.ERROR -> {
-                    adjustConnectionStatus(ConnectionStatus.CONNECTING)
-                    textBoardBinding.textSubtext.text = getString(R.string.controller_status_confirm_EV3)
-                    // Attempt to make a connection
-                    // Probably add something here in the future to not fetch uuids if we've already checked this robot to be EV3
-                    SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
+                    viewModel.updateConnection(ConnectionStatus.CONNECTING)
+                    // Fetch UUIDS
+                    viewModel.selectedDevice?.fetchUuidsWithSdp()
                 }
                 // If we are currently connected and should stop connect
-                else -> disconnectSafely()
+                else -> viewModel.disconnectBluetoothService()
             }
-
         }
-        // Attempt to make a connection
-        SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
 
+        // Fetch UUIDS
+        viewModel.selectedDevice?.fetchUuidsWithSdp()
+
+        // Listen to connection changes in the view model
+        viewModel.connectionChangeListener = (connectionStatusHandler)
 
         // Select either to see piano or joysticks
         binding!!.buttonShowKeyboard.setOnClickListener {
@@ -197,40 +163,40 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         //  Unbelievable, unpleasant piano we are forced to have
         val pianoBinding = binding!!.pianoWidget
         pianoBinding.noteA.setOnClickListener {
-            bluetoothService.playSound(Note.A)
+            viewModel.play(Note.A)
         }
         pianoBinding.noteASharp.setOnClickListener {
-            bluetoothService.playSound(Note.ASharp)
+            viewModel.play(Note.ASharp)
         }
         pianoBinding.noteB.setOnClickListener {
-            bluetoothService.playSound(Note.B)
+            viewModel.play(Note.B)
         }
         pianoBinding.noteC.setOnClickListener {
-            bluetoothService.playSound(Note.C)
+            viewModel.play(Note.C)
         }
         pianoBinding.noteCSharp.setOnClickListener {
-            bluetoothService.playSound(Note.CSharp)
+            viewModel.play(Note.CSharp)
         }
         pianoBinding.noteD.setOnClickListener {
-            bluetoothService.playSound(Note.D)
+            viewModel.play(Note.D)
         }
         pianoBinding.noteDSharp.setOnClickListener {
-            bluetoothService.playSound(Note.DSharp)
+            viewModel.play(Note.DSharp)
         }
         pianoBinding.noteE.setOnClickListener {
-            bluetoothService.playSound(Note.E)
+            viewModel.play(Note.E)
         }
         pianoBinding.noteF.setOnClickListener {
-            bluetoothService.playSound(Note.F)
+            viewModel.play(Note.F)
         }
         pianoBinding.noteFSharp.setOnClickListener {
-            bluetoothService.playSound(Note.FSharp)
+            viewModel.play(Note.FSharp)
         }
         pianoBinding.noteG.setOnClickListener {
-            bluetoothService.playSound(Note.G)
+            viewModel.play(Note.G)
         }
         pianoBinding.noteGSharp.setOnClickListener {
-            bluetoothService.playSound(Note.GSharp)
+            viewModel.play(Note.GSharp)
         }
     }
 
@@ -238,7 +204,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onDestroyView() {
         super.onDestroyView()
         requireActivity().unregisterReceiver(receiver) // Unregister Intent receiver
-        bluetoothService.destroy()
+        viewModel.disconnectBluetoothService()
         binding = null
     }
 
@@ -263,10 +229,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         }
     }
 
-    private fun adjustConnectionStatus(connectionStatus: ConnectionStatus) {
-        // Inform view model of connection status change
-        viewModel.connectionStatus = connectionStatus
-        // Change HEADER text
+    private val connectionStatusHandler: ConnectionStatusHandler = { connectionStatus ->
         requireActivity().runOnUiThread {
             textBoardBinding.textHeader.text = getString(viewModel.connectionStatus.stringId)
             // Change image in the top-right
@@ -353,17 +316,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 R.style.TextTealShadow
         )
     }
-
-    private fun disconnectSafely() {
-        requireActivity().runOnUiThread {
-            adjustConnectionStatus(ConnectionStatus.DISCONNECTED)
-            textBoardBinding.textSubtext.text = getString(R.string.controller_status_disconnected)
-        }
-        // Disconnect cancels all active threads
-        bluetoothService.disconnect()
-        // FIX THIS IN FUTURE MAKE IT INTERRUPT BASED
-        viewModel.stopJoystickDrive()
-        viewModel.stopMonitorBattery()
-        viewModel.stopJoystickSteer()
-    }
 }
+
+typealias ConnectionStatusHandler = (ConnectionStatus) -> Unit

@@ -1,5 +1,7 @@
 package com.example.legoev3android.ui.viewmodels
 
+import android.bluetooth.BluetoothDevice
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.legoev3android.domain.use_case.ControllerUseCases
@@ -16,17 +18,72 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     var connectionStatus = ConnectionStatus.DISCONNECTED
+        private set
+
+    private var bluetoothService: MyBluetoothService? = null
+    var connectionChangeListener: (ConnectionStatus) -> Unit = {}
+    var selectedDevice: BluetoothDevice? = null
+
+    fun updateConnection(connectionStatus: ConnectionStatus) {
+        this.connectionStatus = connectionStatus
+        connectionChangeListener(connectionStatus)
+    }
+
+    fun createBluetoothService(
+        context: Context,
+        // Replace these with live data eventually
+        leftJoystickView: JoystickView,
+        rightJoystickView: JoystickView,
+        ) {
+
+        if (bluetoothService != null)
+            return
+
+        bluetoothService = MyBluetoothService(context) {
+            // Inform view model we have bonded and are now starting service
+            updateConnection(ConnectionStatus.CONNECTED)
+
+            if (bluetoothService != null) {
+                beginMonitorBattery {
+                    println("Battery received as $it")
+                }
+                beginJoystickSteer(rightJoystickView)
+                beginJoystickDrive(leftJoystickView)
+            }
+        }
+    }
+
+    fun connectBluetoothService(
+        device: BluetoothDevice
+    ) {
+        bluetoothService?.connect(device)
+    }
+
+
+    fun disconnectBluetoothService() {
+        updateConnection(ConnectionStatus.DISCONNECTED)
+        bluetoothService?.disconnect()
+        stopMonitorBattery()
+        stopJoystickDrive()
+        stopJoystickSteer()
+    }
+
+    // EXECUTE PLAY NOTE USE CASE
+    private val playNote = controllerUseCases.playNote
+    fun play(note: Note) {
+        if (bluetoothService != null)
+            playNote(bluetoothService!!, note)
+    }
 
     // EXECUTE BATTERY MONITOR USE CASE
     private val monitorBattery = controllerUseCases.monitorBattery
-    fun beginMonitorBattery(
-        bluetoothService: MyBluetoothService,
+    private fun beginMonitorBattery(
         batteryCallback: (Int) -> Unit
     ) {
         viewModelScope.launch {
             coroutineScope {
                 monitorBattery.beginMonitoring(
-                    bluetoothService
+                    bluetoothService!!
                 ) {
                     println("Here, $it")
                     batteryCallback(it ?: -1)
@@ -34,12 +91,11 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-    fun stopMonitorBattery() = monitorBattery.stopMonitoring()
+    private fun stopMonitorBattery() = monitorBattery.stopMonitoring()
 
     // EXECUTE JOYSTICK DRIVE USE CASE
     private val joystickDrive = controllerUseCases.joystickDrive
-    fun beginJoystickDrive(
-        bluetoothService: MyBluetoothService,
+    private fun beginJoystickDrive(
         joystickView: JoystickView
     ) {
         viewModelScope.launch {
@@ -47,31 +103,29 @@ class MainViewModel @Inject constructor(
             // In Kotlin, when you need a coroutine to run on a different or special thread, you use a "dispatcher", which pretty much equivalent to a thread pool.
             withContext(Dispatchers.IO) {
                 joystickDrive.beginJoystickDrive(
-                    bluetoothService,
+                    bluetoothService!!,
                     joystickView
                 )
             }
         }
     }
-    fun stopJoystickDrive() = joystickDrive.stopJoystickDrive()
+    private fun stopJoystickDrive() = joystickDrive.stopJoystickDrive()
 
 
     // EXECUTE JOYSTICK STEER USE CASE
     private val joystickSteer = controllerUseCases.joystickSteer
-    fun beginJoystickSteer(
-        bluetoothService: MyBluetoothService,
+    private fun beginJoystickSteer(
         joystickView: JoystickView
     ) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 joystickSteer.beginJoystickSteer(
-                    bluetoothService,
+                    bluetoothService!!,
                     joystickView
                 )
             }
         }
     }
-    fun stopJoystickSteer() = joystickSteer.stopJoystickSteer()
-
+    private fun stopJoystickSteer() = joystickSteer.stopJoystickSteer()
 
 }

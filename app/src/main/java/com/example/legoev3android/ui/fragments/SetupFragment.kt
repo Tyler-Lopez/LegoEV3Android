@@ -22,7 +22,6 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +32,6 @@ import com.example.legoev3android.databinding.TextFeatureHeaderSubtextBinding
 import com.example.legoev3android.ui.recyclerview.DeviceAdapter
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.PermissionUtil
-import com.example.legoev3android.utils.SelectedDevice
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,7 +80,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
                 findAvailableDevices()
         }
 
-    // Used to launch and receive searches for available bluetooth devices
+    // Used to launch and receive searches for available bluetoothService devices
     // Including those not yet paired
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -135,7 +133,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             rvDevices.adapter = DeviceAdapter(
                 devices = deviceList
             ) {
-                SelectedDevice.BluetoothDevice = it
+                viewModel.selectedDevice = it
                 adapter.cancelDiscovery()
                 findNavController().navigate(R.id.action_setupFragment_to_controllerFragment)
             }
@@ -236,7 +234,7 @@ class SetupFragment : Fragment(R.layout.fragment_setup) {
             }
         }
 
-        // If the user already has given bluetooth permissions
+        // If the user already has given bluetoothService permissions
         if (PermissionUtil.hasPermissions(requireContext()))
             findAvailableDevices()
         // The user does not yet have permissions
