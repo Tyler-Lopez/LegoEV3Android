@@ -1,8 +1,8 @@
 package com.example.legoev3android.ui.viewmodels
 
-import android.bluetooth.BluetoothAdapter
 import androidx.lifecycle.ViewModel
-import com.example.legoev3android.R
+import androidx.lifecycle.viewModelScope
+import com.example.legoev3android.domain.use_case.ControllerUseCases
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.views.JoystickView
 import com.example.legoev3android.utils.*
@@ -11,286 +11,67 @@ import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : ViewModel() {
+class MainViewModel @Inject constructor(
+    controllerUseCases: ControllerUseCases
+) : ViewModel() {
 
     var connectionStatus = ConnectionStatus.DISCONNECTED
 
-    // Invoked to return a stream of data representing battery status
-    inner class MonitorConnectionThread(
-        private val bluetoothService: MyBluetoothService,
-        private val batteryCallback: (Int) -> Unit
-    ) : Thread() {
-        @Volatile
-        private var isRunning = true
-
-        fun stopThreadSafely() {
-            isRunning = false
-        }
-
-        override fun run() {
-            super.run()
-            while (isRunning) {
-                runBlocking {
-                    println("Here, running blocking on battery")
-                    bluetoothService.readBattery(
-                        BatteryCommand.createBatteryCommand()
-                    ) {
-                        println(it)
-                    }
-                }
-                sleep(4000)
-            }
-        }
-    }
-
-    inner class JoystickDriveThread(
-        private val bluetoothService: MyBluetoothService,
-        private val joystickView: JoystickView
-    ) : Thread() {
-
-        @Volatile
-        private var isRunning = true
-
-        fun stopThreadSafely() {
-            isRunning = false
-        }
-
-        override fun run() {
-            super.run()
-            while (isRunning) {
-                val power = joystickView.getPower()
-                val degree = joystickView.getDegree()
-                if (power > 0f)
-
-                /* DRIVE MOTORS */
-
-                // Motor B and C control movement
-                    for (motor in listOf(Motor.B, Motor.C)) {
-                        bluetoothService
-                            .driveMotor(
-                                MotorCommandFactory
-                                    .createDriveMovement(
-                                        motor = motor,
-                                        speedPercent = power.toInt(),
-                                        degree = degree.toInt()
-                                    )
-                            )
-                    }
-                sleep(15)
-            }
-        }
-    }
-
-    inner class JoystickSteerThread(
-        private val bluetoothService: MyBluetoothService,
-        private val joystickView: JoystickView
-    ) : Thread() {
-
-        private var stalledSide: Side = Side.NONE
-        private var leftMax: Float = 0f
-        private var rightMax: Float = 0f
-
-        /*
-
-        STEERING
-
-        Find left and right maximum values automatically
-
-        Then, these are used to prevent motor stalling
-
-         */
-        @Volatile
-        private var isRunning = true
-
-        fun stopThreadSafely() {
-            isRunning = false
-        }
-
-        override fun run() {
-            super.run()
-            while (isRunning) {
-                var lastSteerDegree = Float.MAX_VALUE
-
-                // FIND LEFT MAXIMUM
-                var leftFound = false
-                while (isRunning) {
-                    if (leftFound) {
-                        lastSteerDegree = Float.MAX_VALUE
-                        break
-                    }
-                    // Attempt a move left
+    // EXECUTE BATTERY MONITOR USE CASE
+    private val monitorBattery = controllerUseCases.monitorBattery
+    fun beginMonitorBattery(
+        bluetoothService: MyBluetoothService,
+        batteryCallback: (Int) -> Unit
+    ) {
+        viewModelScope.launch {
+            coroutineScope {
+                monitorBattery.beginMonitoring(
                     bluetoothService
-                        .driveMotor(
-                            MotorCommandFactory
-                                .createSteerMovement(
-                                    motor = Motor.A,
-                                    speedPercent = 50
-                                )
-                        )
-                    // Wait for move to complete
-                    sleep(40)
-                    // Run a blocking call to receive input on current degrees
-                    runBlocking {
-                        bluetoothService
-                            .read(
-                                MotorCommandFactory
-                                    .readMotor(
-                                        Motor.A,
-                                        MotorMode.DEGREE
-                                    )
-                            )
-                            {
-                                if (it != null) {
-                                    val difference: Int =
-                                        (kotlin.math.abs(
-                                            lastSteerDegree - it
-                                        )).toInt()
-                                    lastSteerDegree = it
-                                    if (difference < 5) {
-                                        leftMax = it
-                                        leftFound = true
-                                    }
-                                }
-                            }
-                    }
-                }
-                println("Left maximum found to be $leftMax")
-                // FIND RIGHT MAXIMUM
-                var rightFound = false
-                while (isRunning) {
-                    if (rightFound) {
-                        lastSteerDegree = Float.MAX_VALUE
-                        break
-                    }
-                    // Attempt a move left
-                    bluetoothService
-                        .driveMotor(
-                            MotorCommandFactory
-                                .createSteerMovement(
-                                    motor = Motor.A,
-                                    speedPercent = -50
-                                )
-                        )
-                    // Wait for move to complete
-                    sleep(40)
-                    // Run a blocking call to receive input on current degrees
-                    runBlocking {
-                        bluetoothService
-                            .read(
-                                MotorCommandFactory
-                                    .readMotor(
-                                        Motor.A,
-                                        MotorMode.DEGREE
-                                    )
-                            )
-                            {
-                                if (it != null) {
-                                    val difference: Int =
-                                        (kotlin.math.abs(
-                                            lastSteerDegree - it
-                                        )).toInt()
-                                    lastSteerDegree = it
-                                    if (difference < 5) {
-                                        rightMax = it
-                                        rightFound = true
-                                    }
-                                }
-                            }
-                    }
-                }
-
-                // E.g. for 10 & 25 = 15
-                val centerDegreeDifference =
-                    maxOf(rightMax, leftMax).minus(minOf(rightMax, leftMax))
-
-                // This loop is what actually controls driving, based on left and right max
-                while (isRunning) {
-                    val degree = joystickView.getDegree().toInt()
-                    val side: Side =
-                        if (joystickView.getPower() < 5f) Side.NONE
-                        else
-                            when (degree) {
-                                in 120..240 -> Side.LEFT
-                                in 0..60, in 300..360 -> Side.RIGHT
-                                else -> Side.NONE
-                            }
-
-                    // Normalize degree then denormalize to the centerDegreeDifference
-                    val targetDegrees: Float =
-                        if (side == Side.NONE)
-                        // If we want to generally go to the center, just ALWAYS go to the center
-                        // E.g., if center is 5, never target 0 always go to 5
-                            (leftMax - (centerDegreeDifference / 2f))
-                        else
-                            when (degree) {
-                                in 0..180 -> leftMax - (((180f - degree) / 180f) * centerDegreeDifference)
-                                else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
-                            }
-
-                    // If the motor is stalled in this direction
-                    if (side == stalledSide && side != Side.NONE) {
-                        // Check back in 15 ms
-                        sleep(15)
-                    } else {
-                        // Read the current motor degree, and send appropriate response
-                        runBlocking {
-                            bluetoothService
-                                .read(
-                                    MotorCommandFactory
-                                        .readMotor(
-                                            Motor.A,
-                                            MotorMode.DEGREE
-                                        )
-                                )
-                                {
-                                    // It would return null in event of invalid connection
-                                    // May be able to be removed later
-                                    if (it != null) {
-                                        // Reading for a stall...
-                                        stalledSide = when {
-                                            kotlin.math.abs(it - leftMax) < 5 -> {
-                                                Side.LEFT
-                                            }
-                                            kotlin.math.abs(it - rightMax) < 5 -> {
-                                                Side.RIGHT
-                                            }
-                                            else -> Side.NONE
-                                        }
-
-                                        // Are we already where we want to be?
-                                        // Replace this in the future with some sort of scaling unit, not 5 as a constant - that's bad
-                                        if (kotlin.math.abs(targetDegrees - it) > 5) {
-                                            val steeringPower =
-                                                (kotlin.math.abs(targetDegrees - it)
-                                                        / centerDegreeDifference) *
-                                                        when {
-                                                            targetDegrees < it -> -40
-                                                            else -> 40
-                                                        }
-
-                                            println("Steering power is $steeringPower")
-
-
-
-                                            if (stalledSide != side || side == Side.NONE) {
-                                                // Attempt movement for 50 ms
-                                                bluetoothService
-                                                    .driveMotor(
-                                                        MotorCommandFactory
-                                                            .createSteerMovement(
-                                                                motor = Motor.A,
-                                                                speedPercent = steeringPower.toInt()
-                                                            )
-                                                    )
-                                            }
-                                        } // End block if not at destination
-                                        sleep(20)
-                                    }
-                                }
-                        }
-                    }
+                ) {
+                    println("Here, $it")
+                    batteryCallback(it ?: -1)
                 }
             }
         }
     }
+    fun stopMonitorBattery() = monitorBattery.stopMonitoring()
+
+    // EXECUTE JOYSTICK DRIVE USE CASE
+    private val joystickDrive = controllerUseCases.joystickDrive
+    fun beginJoystickDrive(
+        bluetoothService: MyBluetoothService,
+        joystickView: JoystickView
+    ) {
+        viewModelScope.launch {
+            // https://stackoverflow.com/questions/58254985/is-it-better-to-use-a-thread-or-coroutine-in-kotlin
+            // In Kotlin, when you need a coroutine to run on a different or special thread, you use a "dispatcher", which pretty much equivalent to a thread pool.
+            withContext(Dispatchers.IO) {
+                joystickDrive.beginJoystickDrive(
+                    bluetoothService,
+                    joystickView
+                )
+            }
+        }
+    }
+    fun stopJoystickDrive() = joystickDrive.stopJoystickDrive()
+
+
+    // EXECUTE JOYSTICK STEER USE CASE
+    private val joystickSteer = controllerUseCases.joystickSteer
+    fun beginJoystickSteer(
+        bluetoothService: MyBluetoothService,
+        joystickView: JoystickView
+    ) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                joystickSteer.beginJoystickSteer(
+                    bluetoothService,
+                    joystickView
+                )
+            }
+        }
+    }
+    fun stopJoystickSteer() = joystickSteer.stopJoystickSteer()
+
+
 }

@@ -12,6 +12,7 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
@@ -21,17 +22,19 @@ import com.example.legoev3android.databinding.TextLargeBoardBinding
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.viewmodels.MainViewModel
 import com.example.legoev3android.utils.*
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ControllerFragment : Fragment(R.layout.fragment_controller) {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
     private var binding: FragmentControllerBinding? = null
     private lateinit var textBoardBinding: TextLargeBoardBinding
-    private var joystickDriveThread: MainViewModel.JoystickDriveThread? = null
-    private var joystickSteerThread: MainViewModel.JoystickSteerThread? = null
+//    private var joystickDriveThread: MainViewModel.JoystickDriveThread? = null
+  //  private var joystickSteerThread: MainViewModel.JoystickSteerThread? = null
 
     private lateinit var bluetoothService: MyBluetoothService
 
@@ -154,16 +157,12 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             }
             // This should mean the go ahead on we are connected
             // clean this code up later
-            joystickSteerThread =
-                viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickViewRight)
-            joystickDriveThread =
-                viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView)
-            val a = viewModel.MonitorConnectionThread(bluetoothService) {
-                println("Here, $it")
+            viewModel.beginMonitorBattery(bluetoothService) {
+                println("in ui")
             }
-            a.start()
-            joystickDriveThread!!.start()
-            joystickSteerThread!!.start()
+            viewModel.beginJoystickDrive(bluetoothService, binding!!.joystickView)
+            viewModel.beginJoystickSteer(bluetoothService, binding!!.joystickViewRight)
+
         }
 
         // Establish what should happen if the CONNECT / DISCONNECT button is pushed
@@ -363,10 +362,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         // Disconnect cancels all active threads
         bluetoothService.disconnect()
         // FIX THIS IN FUTURE MAKE IT INTERRUPT BASED
-        joystickDriveThread?.stopThreadSafely()
-        joystickSteerThread?.stopThreadSafely()
-        // https://stackoverflow.com/questions/8505707/android-best-and-safe-way-to-stop-thread
-        joystickDriveThread = null
-        joystickSteerThread = null
+        viewModel.stopJoystickDrive()
+        viewModel.stopMonitorBattery()
+        viewModel.stopJoystickSteer()
     }
 }
