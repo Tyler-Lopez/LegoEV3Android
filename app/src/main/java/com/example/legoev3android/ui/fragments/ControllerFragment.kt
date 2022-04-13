@@ -74,19 +74,13 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 }
 
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
-                    // TO-DO
-                    // ADD SOMETHING FOR THE IS BONDING STATE TO NOTE YOU NEED TO ACCEPT ON DEVICE!
-                    println("HERE BOND STATE CHANGED")
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     if (device?.bondState == BluetoothDevice.BOND_BONDED) {
                         // Begin bluetoothService service
                         startBluetoothServiceConnection(device)
                     }
-                    // TODO remove logic from this removed textview into a information menu
-                    // device?.let { binding?.centeredText?.text = device.bondState.toString() }
                 }
-                else -> println("HERE HERE $intent ${intent.action}")
             }
         }
     }
@@ -208,6 +202,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         binding = null
     }
 
+    // Create ... Animation when Connecting
     private fun loopLoadingDots() {
         viewLifecycleOwner.lifecycleScope.launch {
             // Prevent memory leak with binding != null check
@@ -229,7 +224,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         }
     }
 
-    private val connectionStatusHandler: ConnectionStatusHandler = { connectionStatus ->
+    private val connectionStatusHandler: (ConnectionStatus) -> Unit = { connectionStatus ->
         requireActivity().runOnUiThread {
             textBoardBinding.textHeader.text = getString(viewModel.connectionStatus.stringId)
             // Change image in the top-right
@@ -317,5 +312,3 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         )
     }
 }
-
-typealias ConnectionStatusHandler = (ConnectionStatus) -> Unit
