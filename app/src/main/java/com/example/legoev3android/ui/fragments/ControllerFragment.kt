@@ -182,8 +182,17 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
 
 
+        // Select either to see piano or joysticks
+        binding!!.buttonShowKeyboard.setOnClickListener {
+            binding!!.llJoysticks.visibility = View.GONE
+            binding!!.layoutPianoHolder.visibility = View.VISIBLE
+        }
+        binding!!.buttonShowJoysticks.setOnClickListener {
+            binding!!.llJoysticks.visibility = View.VISIBLE
+            binding!!.layoutPianoHolder.visibility = View.GONE
+        }
         //  Unbelievable, unpleasant piano we are forced to have
-        val pianoBinding = binding!!.layoutPiano
+        val pianoBinding = binding!!.pianoWidget
         pianoBinding.noteA.setOnClickListener {
             bluetoothService.playSound(Note.A)
         }
