@@ -37,6 +37,7 @@
                 android:layout_weight="5">
 
                 <LinearLayout
+                    android:id="@+id/ll_joysticks"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -53,6 +54,14 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="50" />
                 </LinearLayout>
+                <include
+                    android:id="@+id/layout_piano"
+                    layout="@layout/piano_widget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="visible"
+                    android:layout_margin="32dp"/>
             </RelativeLayout>
         </LinearLayout>
 

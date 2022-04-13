@@ -180,6 +180,46 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         }
         // Attempt to make a connection
         SelectedDevice.BluetoothDevice?.fetchUuidsWithSdp()
+
+
+        //  Unbelievable, unpleasant piano we are forced to have
+        val pianoBinding = binding!!.layoutPiano
+        pianoBinding.noteA.setOnClickListener {
+            bluetoothService.playSound(Note.A)
+        }
+        pianoBinding.noteASharp.setOnClickListener {
+            bluetoothService.playSound(Note.ASharp)
+        }
+        pianoBinding.noteB.setOnClickListener {
+            bluetoothService.playSound(Note.B)
+        }
+        pianoBinding.noteC.setOnClickListener {
+            bluetoothService.playSound(Note.C)
+        }
+        pianoBinding.noteCSharp.setOnClickListener {
+            bluetoothService.playSound(Note.CSharp)
+        }
+        pianoBinding.noteD.setOnClickListener {
+            bluetoothService.playSound(Note.D)
+        }
+        pianoBinding.noteDSharp.setOnClickListener {
+            bluetoothService.playSound(Note.DSharp)
+        }
+        pianoBinding.noteE.setOnClickListener {
+            bluetoothService.playSound(Note.E)
+        }
+        pianoBinding.noteF.setOnClickListener {
+            bluetoothService.playSound(Note.F)
+        }
+        pianoBinding.noteFSharp.setOnClickListener {
+            bluetoothService.playSound(Note.FSharp)
+        }
+        pianoBinding.noteG.setOnClickListener {
+            bluetoothService.playSound(Note.G)
+        }
+        pianoBinding.noteGSharp.setOnClickListener {
+            bluetoothService.playSound(Note.GSharp)
+        }
     }
 
     // This is necessary to prevent memory leaks
@@ -303,7 +343,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     }
 
     private fun disconnectSafely() {
-
         requireActivity().runOnUiThread {
             adjustConnectionStatus(ConnectionStatus.DISCONNECTED)
             textBoardBinding.textSubtext.text = getString(R.string.controller_status_disconnected)

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import com.example.legoev3android.utils.Constants
+import com.example.legoev3android.utils.Note
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
@@ -66,7 +67,7 @@ class MyBluetoothService(
         else println("ERROR: DRIVE COMMAND GIVEN WHEN NO LONGER CONNECTED") // Improve later
     }
 
-    fun playSound() {
+    fun playSound(note: Note) {
         if (mState == Constants.STATE_CONNECTED) {
             val buffer = ByteArray(17)
             buffer[0] = (0x0F).toByte()
@@ -81,8 +82,8 @@ class MyBluetoothService(
             buffer[9] = (0x81).toByte()
             buffer[10] = (0x02).toByte()
             buffer[11] = (0x82).toByte()
-            buffer[12] = (0xE8).toByte()
-            buffer[13] = (0x03).toByte()
+            buffer[12] = note.byte1
+            buffer[13] = note.byte2
             buffer[14] = (0x82).toByte()
             buffer[15] = (0xE8).toByte()
             buffer[16] = (0x03).toByte()

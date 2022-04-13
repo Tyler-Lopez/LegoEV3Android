@@ -5,6 +5,8 @@
     android:id="@+id/constraintLayout2"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:padding="16dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -19,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
         <View
+            android:id="@+id/note_c"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -31,6 +34,7 @@
             android:layout_weight="1" />
 
         <View
+            android:id="@+id/note_d"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -45,6 +49,7 @@
             android:layout_weight="1" />
 
         <View
+            android:id="@+id/note_e"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -59,6 +64,7 @@
             android:layout_weight="1" />
 
         <View
+            android:id="@+id/note_f"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -73,6 +79,7 @@
             android:layout_weight="1" />
 
         <View
+            android:id="@+id/note_g"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -87,6 +94,7 @@
             android:layout_weight="1" />
 
         <View
+            android:id="@+id/note_a"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
@@ -101,12 +109,12 @@
             android:layout_weight="1" />
 
         <View
+            android:id="@+id/note_b"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
             android:background="@drawable/background_piano_key"
             android:elevation="10dp">
-
         </View>
     </LinearLayout>
     <!-- BLACK KEYS -->
@@ -137,42 +145,51 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="8"/>
                 <View
+                    android:id="@+id/note_c_sharp"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="12"
                     android:background="@color/black" />
+
                 <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2.5"/>
                 <View
+                    android:id="@+id/note_d_sharp"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="12"
                     android:background="@color/black" />
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2.5"/>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="12"
-                    android:background="@color/black" />
+
                 <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="16.5"/>
                 <View
+                    android:id="@+id/note_f_sharp"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="12"
                     android:background="@color/black" />
+
                 <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2.5"/>
                 <View
+                    android:id="@+id/note_g_sharp"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="12"
+                    android:background="@color/black" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.5"/>
+                <View
+                    android:id="@+id/note_a_sharp"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="12"
