@@ -158,6 +158,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 viewModel.JoystickSteerThread(bluetoothService, binding!!.joystickViewRight)
             joystickDriveThread =
                 viewModel.JoystickDriveThread(bluetoothService, binding!!.joystickView)
+            val a = viewModel.MonitorConnectionThread(bluetoothService) {
+                println("Here, $it")
+            }
+            a.start()
             joystickDriveThread!!.start()
             joystickSteerThread!!.start()
         }

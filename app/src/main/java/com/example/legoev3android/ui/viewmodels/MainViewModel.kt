@@ -30,7 +30,15 @@ class MainViewModel @Inject constructor() : ViewModel() {
         override fun run() {
             super.run()
             while (isRunning) {
-
+                runBlocking {
+                    println("Here, running blocking on battery")
+                    bluetoothService.readBattery(
+                        BatteryCommand.createBatteryCommand()
+                    ) {
+                        println(it)
+                    }
+                }
+                sleep(4000)
             }
         }
     }

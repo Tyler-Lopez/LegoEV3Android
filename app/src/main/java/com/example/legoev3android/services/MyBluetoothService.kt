@@ -61,6 +61,18 @@ class MyBluetoothService(
         } else listener(null)
     }
 
+    fun readBattery(
+        bytes: ByteArray,
+        listener: (Float?) -> Unit
+    ) {
+        if (mState == Constants.STATE_CONNECTED) {
+            mThreads.readBattery(bytes) {
+                listener(it)
+            }
+        } else listener(null)
+    }
+
+
     fun driveMotor(bytes: ByteArray) {
         if (mState == Constants.STATE_CONNECTED)
             mThreads.writeToDrive(bytes)
@@ -112,6 +124,7 @@ class MyBluetoothService(
 
         // Handle write / reply from roboto
         private var mReadDataThread: ConnectedThread? = null
+        private var mReadBatteryThread: ConnectedThread? = null
 
         fun cancelThreads() {
             mConnectThread?.cancel().also { mConnectThread = null }
@@ -119,19 +132,25 @@ class MyBluetoothService(
             mSteerThread?.cancel().also { mSteerThread = null }
             mSoundThread?.cancel().also { mSoundThread = null }
             mReadDataThread?.cancel().also { mReadDataThread = null }
+            mReadBatteryThread?.cancel().also { mReadBatteryThread = null }
         }
 
         fun startConnection(device: BluetoothDevice) {
-            println("START CONNECTION INVOKED")
             mConnectThread = ConnectThread(device)
-            println("CREATED CONNECT THREAD")
             mConnectThread?.start()
         }
 
         fun writeToDrive(bytes: ByteArray) = mDriveThread?.writeToOutput(bytes)
         fun writeToSteer(bytes: ByteArray) = mSteerThread?.writeToOutput(bytes)
         fun writeToSound(bytes: ByteArray) = mSoundThread?.writeToOutput(bytes)
-        fun read(bytes: ByteArray, listener: (Float) -> Unit) = mReadDataThread?.readInput(bytes) { listener(it) }
+        fun read(bytes: ByteArray, listener: (Float) -> Unit) =
+            mReadDataThread?.readInput(bytes) { listener(it) }
+
+        fun readBattery(bytes: ByteArray, listener: (Float) -> Unit) {
+            println("Here trying read")
+            mReadBatteryThread?.readInput(bytes, true) { listener(it) }
+            println("here after")
+        }
 
         @SuppressLint("MissingPermission")
         private inner class ConnectThread(device: BluetoothDevice) : Thread() {
@@ -156,6 +175,7 @@ class MyBluetoothService(
                         mDriveThread = ConnectedThread(socket)
                         mSteerThread = ConnectedThread(socket)
                         mReadDataThread = ConnectedThread(socket)
+                        mReadBatteryThread = ConnectedThread(socket)
                         mSoundThread = ConnectedThread(socket)
                         mState = Constants.STATE_CONNECTED
                         println("Just about to inform of connection")
@@ -188,12 +208,21 @@ class MyBluetoothService(
 
             fun readInput(
                 mmBuffer: ByteArray,
+                sentByBatteryDebug: Boolean = false,
                 listener: (Float) -> Unit
             ) {
                 try {
                     val reply = ByteArray(24)
+                    if (sentByBatteryDebug)
+                        println("here b4 write")
                     mmOutStream?.write(mmBuffer)
+                    if (sentByBatteryDebug)
+                        println("here after write")
                     mmInStream?.read(reply)
+                    if (sentByBatteryDebug) {
+                        println(reply.joinToString { "$it, " })
+                        println(reply[5].toInt())
+                    }
                     listener(
                         ByteBuffer.wrap(
                             reply.copyOfRange(5, 9).reversedArray()
