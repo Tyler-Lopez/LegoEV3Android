@@ -51,6 +51,9 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             // If a device was found
             when (intent.action) {
                 // First action to be received: we must ensure this is an EV3
+                BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
+                    viewModel.disconnectBluetoothService()
+                }
                 BluetoothDevice.ACTION_UUID -> {
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
@@ -80,6 +83,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                         // Begin bluetoothService service
                         startBluetoothServiceConnection(device)
                     }
+                    println("HERE ${device?.bondState}")
                 }
             }
         }
@@ -95,8 +99,10 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val filter = IntentFilter(BluetoothDevice.ACTION_UUID)
+        val filterDisconnected = IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED)
         val filterBond = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         requireActivity().registerReceiver(receiver, filter)
+        requireActivity().registerReceiver(receiver, filterDisconnected)
         requireActivity().registerReceiver(receiver, filterBond)
     }
 

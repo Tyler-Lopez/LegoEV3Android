@@ -97,7 +97,7 @@ class JoystickSteerUseCase {
                                                     else -> 40
                                                 }
 
-                                    println("Steering power is $steeringPower")
+                             //       println("Steering power is $steeringPower")
 
 
 
