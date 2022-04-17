@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.example.legoev3android.R
@@ -43,6 +44,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         Animation.RELATIVE_TO_SELF,
         0.5f
     )
+
+
 
     // This object is used to listen to all changes in bond state to device
     private val receiver = object : BroadcastReceiver() {
@@ -110,7 +113,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
-
+        life
         // Set TextBoard Binding and change connection status for first time
         textBoardBinding = binding!!.textLargeBoardLayout
         rotateAnimation.duration = 3600

@@ -60,10 +60,10 @@ class Joystick(
         ) / outerCircleRadius) * 100f
 
     // Get degree from 0 to 360 of innerCircle center vector relative to outerCircle center
-    fun getDegree(): Double {
+    fun getDegree(): Float {
         val degrees =
             Math.toDegrees(atan2(-1f * innerCirclePositionY, innerCirclePositionX).toDouble())
-        return (degrees + 360) % 360
+        return ((degrees + 360) % 360).toFloat()
     }
 
 

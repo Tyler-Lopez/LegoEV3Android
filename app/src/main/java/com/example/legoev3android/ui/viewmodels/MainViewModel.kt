@@ -10,6 +10,8 @@ import com.example.legoev3android.ui.views.JoystickView
 import com.example.legoev3android.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +21,11 @@ class MainViewModel @Inject constructor(
 
     var connectionStatus = ConnectionStatus.DISCONNECTED
         private set
+
+    private val _driveStateFlow = MutableStateFlow(0)
+    val driveStateFlow = _driveStateFlow.asStateFlow()
+
+
 
     private var bluetoothService: MyBluetoothService? = null
     var connectionChangeListener: (ConnectionStatus) -> Unit = {}

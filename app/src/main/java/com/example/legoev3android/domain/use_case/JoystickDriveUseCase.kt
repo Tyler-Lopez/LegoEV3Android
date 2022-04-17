@@ -6,18 +6,23 @@ import com.example.legoev3android.utils.Motor
 import com.example.legoev3android.utils.MotorCommandFactory
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 
 class JoystickDriveUseCase {
 
     @Volatile
     private var isRunning = false
 
+    private var powerStateFlow: StateFlow<Float>? = null
+
     suspend fun beginJoystickDrive(
         bluetoothService: MyBluetoothService,
-        joystickView: JoystickView
+        powerStateFlow: StateFlow<Float>
     ) {
         if (isRunning)
             return
+
+        this.powerStateFlow = powerStateFlow
 
         isRunning = true
         coroutineScope {
@@ -45,6 +50,6 @@ class JoystickDriveUseCase {
 
     fun stopJoystickDrive() {
         isRunning = false
+        powerStateFlow = null
     }
-
 }

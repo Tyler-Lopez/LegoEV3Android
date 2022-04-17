@@ -7,11 +7,16 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.MotionEvent.*
 import android.view.View
+import androidx.lifecycle.LifecycleCoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 // https://www.raywenderlich.com/142-android-custom-view-tutorial
 class JoystickView(
     context: Context,
-    attrs: AttributeSet
+    attrs: AttributeSet,
+    //   lifecycleScope: Lifecycle
 ) : View(context, attrs) {
 
     private val joystick: Joystick = Joystick(context)
@@ -20,6 +25,16 @@ class JoystickView(
     // Set in onDraw
     private var centerX = 0f
     private var centerY = 0f
+
+    private var _powerStateFlow = MutableStateFlow(0f)
+    val powerStateFlow = _powerStateFlow.asStateFlow()
+
+    private var _degreeStateFlow = MutableStateFlow(0f)
+    val degreeStateFlow = _degreeStateFlow.asStateFlow()
+
+    // Note for future tyler: change this so we just initialize flows here, then pass up the
+    // wrapper version without _ which is immutable! :)
+
 
     // Invoked by Android and canvas provided
     override fun onDraw(canvas: Canvas) {
@@ -55,9 +70,9 @@ class JoystickView(
 
     // Force view to redraw itself (not the best way to do this?)
     private fun update() {
+        _powerStateFlow.value = joystick.getPower()
+        _degreeStateFlow.value = joystick.getDegree()
         invalidate()
     }
 
-    fun getPower() = joystick.getPower()
-    fun getDegree() = joystick.getDegree()
 }
