@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 class JoystickView(
     context: Context,
     attrs: AttributeSet,
-    //   lifecycleScope: Lifecycle
 ) : View(context, attrs) {
 
     private val joystick: Joystick = Joystick(context)
@@ -31,10 +30,6 @@ class JoystickView(
 
     private var _degreeStateFlow = MutableStateFlow(0f)
     val degreeStateFlow = _degreeStateFlow.asStateFlow()
-
-    // Note for future tyler: change this so we just initialize flows here, then pass up the
-    // wrapper version without _ which is immutable! :)
-
 
     // Invoked by Android and canvas provided
     override fun onDraw(canvas: Canvas) {
@@ -74,5 +69,6 @@ class JoystickView(
         _degreeStateFlow.value = joystick.getDegree()
         invalidate()
     }
+
 
 }
