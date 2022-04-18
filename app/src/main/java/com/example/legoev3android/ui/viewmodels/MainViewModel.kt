@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.legoev3android.domain.use_case.ControllerUseCases
 import com.example.legoev3android.services.MyBluetoothService
-import com.example.legoev3android.ui.views.JoystickView
 import com.example.legoev3android.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -21,20 +20,30 @@ class MainViewModel @Inject constructor(
     controllerUseCases: ControllerUseCases
 ) : ViewModel() {
 
-    var connectionStatus = ConnectionStatus.DISCONNECTED
-        private set
-
-    private val _driveStateFlow = MutableStateFlow(0)
-    val driveStateFlow = _driveStateFlow.asStateFlow()
+    private var _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
+    val connectionState = _connectionState.asStateFlow()
 
 
     private var bluetoothService: MyBluetoothService? = null
-    var connectionChangeListener: (ConnectionStatus) -> Unit = {}
     var selectedDevice: BluetoothDevice? = null
 
-    fun updateConnection(connectionStatus: ConnectionStatus) {
-        this.connectionStatus = connectionStatus
-        connectionChangeListener(connectionStatus)
+
+    fun updateConnection(connectionState: ConnectionState) {
+        _connectionState.value = connectionState
+    }
+
+
+    fun clickConnectionButton() {
+        when (_connectionState.value) {
+            // If we are not connected and should begin a connection
+            ConnectionState.Disconnected, ConnectionState.Error-> {
+                _connectionState.value = ConnectionState.Connecting
+                // Fetch UUIDS
+                selectedDevice?.fetchUuidsWithSdp()
+            }
+            // If we are currently connected and should stop connect
+            else -> disconnectBluetoothService()
+        }
     }
 
     fun createBluetoothService(
@@ -48,8 +57,8 @@ class MainViewModel @Inject constructor(
             return
 
         bluetoothService = MyBluetoothService(context) {
-            // Inform view model we have bonded and are now starting service
-            updateConnection(ConnectionStatus.CONNECTED)
+
+            _connectionState.value = ConnectionState.Connected
 
             if (bluetoothService != null) {
                 beginMonitorBattery {
@@ -75,7 +84,7 @@ class MainViewModel @Inject constructor(
 
 
     fun disconnectBluetoothService() {
-        updateConnection(ConnectionStatus.DISCONNECTED)
+        _connectionState.value = ConnectionState.Disconnected
         bluetoothService?.disconnect()
         stopMonitorBattery()
         stopJoystickDrive()
