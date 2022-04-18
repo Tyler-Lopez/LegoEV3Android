@@ -1,10 +1,13 @@
 package com.example.legoev3android.domain.use_case
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.views.JoystickView
 import com.example.legoev3android.utils.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
 
@@ -15,13 +18,22 @@ class JoystickSteerUseCase {
 
     suspend fun beginJoystickSteer(
         bluetoothService: MyBluetoothService,
-        joystickView: JoystickView
+        lifecycleCoroutineScope: LifecycleCoroutineScope,
+        flows: Pair<StateFlow<Float>, StateFlow<Float>>
     ) {
 
         if (isRunning)
             return
 
         isRunning = true
+
+        var power = 0f
+        var degree = 0f
+
+        lifecycleCoroutineScope.launchWhenStarted {
+            flows.first.collectLatest { power = it }
+            flows.second.collectLatest { degree = it }
+        }
         coroutineScope {
 
             var stalledSide: Side = Side.NONE
@@ -34,13 +46,12 @@ class JoystickSteerUseCase {
 
             // This loop is what actually controls driving, based on left and right max
             while (isRunning) {
-                val degree = joystickView.getDegree().toInt()
                 val side: Side =
-                    if (joystickView.getPower() < 5f) Side.NONE
+                    if (power < 5f) Side.NONE
                     else
                         when (degree) {
-                            in 120..240 -> Side.LEFT
-                            in 0..60, in 300..360 -> Side.RIGHT
+                            in 120f..240f -> Side.LEFT
+                            in 0f..60f, in 300f..360f -> Side.RIGHT
                             else -> Side.NONE
                         }
 
@@ -52,7 +63,7 @@ class JoystickSteerUseCase {
                         (leftMax - (centerDegreeDifference / 2f))
                     else
                         when (degree) {
-                            in 0..180 -> leftMax - (((180f - degree) / 180f) * centerDegreeDifference)
+                            in 0f..180f -> leftMax - (((180f - degree) / 180f) * centerDegreeDifference)
                             else -> (centerDegreeDifference * ((360f - degree) / 180f)) + rightMax
                         }
 
@@ -97,8 +108,7 @@ class JoystickSteerUseCase {
                                                     else -> 40
                                                 }
 
-                             //       println("Steering power is $steeringPower")
-
+                                    //       println("Steering power is $steeringPower")
 
 
                                     if (stalledSide != side || side == Side.NONE) {

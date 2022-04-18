@@ -113,7 +113,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentControllerBinding.bind(view)
-        life
         // Set TextBoard Binding and change connection status for first time
         textBoardBinding = binding!!.textLargeBoardLayout
         rotateAnimation.duration = 3600
@@ -128,10 +127,13 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         viewModel.updateConnection(ConnectionStatus.CONNECTING)
 
         // Establish our bluetoothService service and what we should do upon successful connection
+        val leftJoystick = binding!!.joystickView
+        val rightJoystick = binding!!.joystickViewRight
         viewModel.createBluetoothService(
             requireActivity(),
-            binding!!.joystickView,
-            binding!!.joystickViewRight
+            lifecycleScope,
+            Pair(leftJoystick.powerStateFlow, leftJoystick.degreeStateFlow),
+            Pair(rightJoystick.powerStateFlow, rightJoystick.degreeStateFlow)
         )
 
         // Establish what should happen if the CONNECT / DISCONNECT button is pushed

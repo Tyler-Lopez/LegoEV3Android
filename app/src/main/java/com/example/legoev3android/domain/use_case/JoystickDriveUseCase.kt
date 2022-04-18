@@ -1,5 +1,6 @@
 package com.example.legoev3android.domain.use_case
 
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.legoev3android.services.MyBluetoothService
 import com.example.legoev3android.ui.views.JoystickView
 import com.example.legoev3android.utils.Motor
@@ -7,28 +8,34 @@ import com.example.legoev3android.utils.MotorCommandFactory
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 
 class JoystickDriveUseCase {
 
     @Volatile
     private var isRunning = false
 
-    private var powerStateFlow: StateFlow<Float>? = null
 
     suspend fun beginJoystickDrive(
         bluetoothService: MyBluetoothService,
-        powerStateFlow: StateFlow<Float>
+        lifecycleCoroutineScope: LifecycleCoroutineScope,
+        flows: Pair<StateFlow<Float>, StateFlow<Float>>
     ) {
+
         if (isRunning)
             return
 
-        this.powerStateFlow = powerStateFlow
-
         isRunning = true
+
+        var power = 0f
+        var degree = 0f
+
+        lifecycleCoroutineScope.launchWhenStarted {
+            flows.first.collectLatest { power = it }
+            flows.second.collectLatest { degree = it }
+        }
         coroutineScope {
             while (isRunning) {
-                val power = joystickView.getPower()
-                val degree = joystickView.getDegree()
                 if (power > 0f)
                 /* DRIVE MOTORS */
                 // Motor B and C control movement
@@ -50,6 +57,5 @@ class JoystickDriveUseCase {
 
     fun stopJoystickDrive() {
         isRunning = false
-        powerStateFlow = null
     }
 }

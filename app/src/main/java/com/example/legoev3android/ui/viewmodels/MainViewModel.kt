@@ -2,6 +2,7 @@ package com.example.legoev3android.ui.viewmodels
 
 import android.bluetooth.BluetoothDevice
 import android.content.Context
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.legoev3android.domain.use_case.ControllerUseCases
@@ -11,6 +12,7 @@ import com.example.legoev3android.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
@@ -26,7 +28,6 @@ class MainViewModel @Inject constructor(
     val driveStateFlow = _driveStateFlow.asStateFlow()
 
 
-
     private var bluetoothService: MyBluetoothService? = null
     var connectionChangeListener: (ConnectionStatus) -> Unit = {}
     var selectedDevice: BluetoothDevice? = null
@@ -38,10 +39,10 @@ class MainViewModel @Inject constructor(
 
     fun createBluetoothService(
         context: Context,
-        // Replace these with live data eventually
-        leftJoystickView: JoystickView,
-        rightJoystickView: JoystickView,
-        ) {
+        lifecycleCoroutineScope: LifecycleCoroutineScope,
+        leftJoystickFlows: Pair<StateFlow<Float>, StateFlow<Float>>,
+        rightJoystickFlows: Pair<StateFlow<Float>, StateFlow<Float>>
+    ) {
 
         if (bluetoothService != null)
             return
@@ -54,8 +55,14 @@ class MainViewModel @Inject constructor(
                 beginMonitorBattery {
                     println("Battery received as $it")
                 }
-                beginJoystickSteer(rightJoystickView)
-                beginJoystickDrive(leftJoystickView)
+                beginJoystickSteer(
+                    lifecycleCoroutineScope = lifecycleCoroutineScope,
+                    flows = rightJoystickFlows
+                )
+                beginJoystickDrive(
+                    lifecycleCoroutineScope = lifecycleCoroutineScope,
+                    flows = leftJoystickFlows
+                )
             }
         }
     }
@@ -98,12 +105,14 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
     private fun stopMonitorBattery() = monitorBattery.stopMonitoring()
 
     // EXECUTE JOYSTICK DRIVE USE CASE
     private val joystickDrive = controllerUseCases.joystickDrive
     private fun beginJoystickDrive(
-        joystickView: JoystickView
+        lifecycleCoroutineScope: LifecycleCoroutineScope,
+        flows: Pair<StateFlow<Float>, StateFlow<Float>>
     ) {
         viewModelScope.launch {
             // https://stackoverflow.com/questions/58254985/is-it-better-to-use-a-thread-or-coroutine-in-kotlin
@@ -111,28 +120,32 @@ class MainViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 joystickDrive.beginJoystickDrive(
                     bluetoothService!!,
-                    joystickView
+                    lifecycleCoroutineScope,
+                    flows
                 )
             }
         }
     }
+
     private fun stopJoystickDrive() = joystickDrive.stopJoystickDrive()
 
 
     // EXECUTE JOYSTICK STEER USE CASE
     private val joystickSteer = controllerUseCases.joystickSteer
     private fun beginJoystickSteer(
-        joystickView: JoystickView
+        lifecycleCoroutineScope: LifecycleCoroutineScope,
+        flows: Pair<StateFlow<Float>, StateFlow<Float>>
     ) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 joystickSteer.beginJoystickSteer(
                     bluetoothService!!,
-                    joystickView
+                    lifecycleCoroutineScope,
+                    flows
                 )
             }
         }
     }
-    private fun stopJoystickSteer() = joystickSteer.stopJoystickSteer()
 
+    private fun stopJoystickSteer() = joystickSteer.stopJoystickSteer()
 }
