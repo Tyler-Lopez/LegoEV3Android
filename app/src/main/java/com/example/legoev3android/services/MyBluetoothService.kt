@@ -6,8 +6,11 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
+import com.example.legoev3android.utils.ConnectionState
 import com.example.legoev3android.utils.Constants
 import com.example.legoev3android.utils.Note
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
@@ -29,12 +32,20 @@ class MyBluetoothService(
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
             .adapter
 
-    fun connect(device: BluetoothDevice) {
+    private var _connectionState: MutableStateFlow<ConnectionState>? = null
+
+    fun connect(
+        device: BluetoothDevice,
+        _connectionState: MutableStateFlow<ConnectionState>
+    ) {
+        this._connectionState = _connectionState
         // If already connecting or connected, cancel threads
         if (mState == Constants.STATE_CONNECTING || mState == Constants.STATE_CONNECTED)
             mThreads.cancelThreads()
         // Start thread to connect with device
+        println("here, before start connection")
         mThreads.startConnection(device)
+        println("here, after start connection")
     }
 
     fun disconnect() {
@@ -183,6 +194,7 @@ class MyBluetoothService(
                     }
                 } catch (e: IOException) {
                     println("EXCEPTION THROWN $e")
+                    _connectionState?.value = ConnectionState.Error
                     Timber.e(e) // Log error
                 }
             }

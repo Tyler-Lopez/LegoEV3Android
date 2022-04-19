@@ -90,7 +90,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     // Invoked when we have bonded to a device which we have also confirmed is a LEGO EV3
     private fun startBluetoothServiceConnection(device: BluetoothDevice) {
         viewModel.connectBluetoothService(device)
-        // TODO Add back in time-out feature
+
     }
 
     // Register for UUID changes and Bond State changes
@@ -224,6 +224,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     private fun monitorConnectionState() {
         lifecycleScope.launchWhenStarted {
             viewModel.connectionState.collectLatest {
+                println(it)
+                boardBinding?.textHeader?.text = getString(it.stringId)
                 // Set TextHeader to the appropriate size
                 boardBinding?.textHeader?.layoutParams = it.getTextHeaderLayoutParams(
                     boardBinding?.textHeader!!.layoutParams

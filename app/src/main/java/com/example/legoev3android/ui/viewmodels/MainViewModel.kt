@@ -22,7 +22,7 @@ class MainViewModel @Inject constructor(
 
     private var _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val connectionState = _connectionState.asStateFlow()
-
+    var activelyConnecting = false
 
     private var bluetoothService: MyBluetoothService? = null
     var selectedDevice: BluetoothDevice? = null
@@ -79,7 +79,7 @@ class MainViewModel @Inject constructor(
     fun connectBluetoothService(
         device: BluetoothDevice
     ) {
-        bluetoothService?.connect(device)
+        bluetoothService?.connect(device, _connectionState)
     }
 
 
