@@ -16,6 +16,12 @@ class JoystickSteerUseCase {
     @Volatile
     private var isRunning = false
 
+    @Volatile
+    private var power = 0f
+
+    @Volatile
+    private var degree = 0f
+
     suspend fun beginJoystickSteer(
         bluetoothService: MyBluetoothService,
         lifecycleCoroutineScope: LifecycleCoroutineScope,
@@ -27,12 +33,19 @@ class JoystickSteerUseCase {
 
         isRunning = true
 
-        var power = 0f
-        var degree = 0f
+
 
         lifecycleCoroutineScope.launchWhenStarted {
-            flows.first.collectLatest { power = it }
-            flows.second.collectLatest { degree = it }
+            flows.first.collectLatest {
+                println("here in first flow power is $it")
+                power = it
+            }
+        }
+        lifecycleCoroutineScope.launchWhenStarted {
+            flows.second.collectLatest {
+                println("here $it")
+                degree = it
+            }
         }
         coroutineScope {
 

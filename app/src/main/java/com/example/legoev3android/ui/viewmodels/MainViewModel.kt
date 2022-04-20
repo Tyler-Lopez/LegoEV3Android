@@ -42,7 +42,10 @@ class MainViewModel @Inject constructor(
                 selectedDevice?.fetchUuidsWithSdp()
             }
             // If we are currently connected and should stop connect
-            else -> disconnectBluetoothService()
+            else -> {
+                println("Here we were already connected so should stop")
+                disconnectBluetoothService()
+            }
         }
     }
 
@@ -79,11 +82,12 @@ class MainViewModel @Inject constructor(
     fun connectBluetoothService(
         device: BluetoothDevice
     ) {
-        bluetoothService?.connect(device, _connectionState)
+        bluetoothService?.connect(device)
     }
 
 
     fun disconnectBluetoothService() {
+        println("Here, disconnect invoked")
         _connectionState.value = ConnectionState.Disconnected
         bluetoothService?.disconnect()
         stopMonitorBattery()

@@ -32,15 +32,11 @@ class MyBluetoothService(
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
             .adapter
 
-    private var _connectionState: MutableStateFlow<ConnectionState>? = null
-
     fun connect(
-        device: BluetoothDevice,
-        _connectionState: MutableStateFlow<ConnectionState>
+        device: BluetoothDevice
     ) {
-        this._connectionState = _connectionState
         // If already connecting or connected, cancel threads
-        if (mState == Constants.STATE_CONNECTING || mState == Constants.STATE_CONNECTED)
+       // if (mState == Constants.STATE_CONNECTING || mState == Constants.STATE_CONNECTED)
             mThreads.cancelThreads()
         // Start thread to connect with device
         println("here, before start connection")
@@ -194,13 +190,11 @@ class MyBluetoothService(
                     }
                 } catch (e: IOException) {
                     println("EXCEPTION THROWN $e")
-                    _connectionState?.value = ConnectionState.Error
                     Timber.e(e) // Log error
                 }
             }
 
             fun cancel() {
-
                 try {
                     mmSocket?.inputStream?.close()
                     mmSocket?.outputStream?.close()

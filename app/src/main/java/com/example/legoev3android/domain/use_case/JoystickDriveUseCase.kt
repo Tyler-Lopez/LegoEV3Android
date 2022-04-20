@@ -15,6 +15,11 @@ class JoystickDriveUseCase {
     @Volatile
     private var isRunning = false
 
+    @Volatile
+    private var power = 0f
+
+    @Volatile
+    private var degree = 0f
 
     suspend fun beginJoystickDrive(
         bluetoothService: MyBluetoothService,
@@ -27,16 +32,20 @@ class JoystickDriveUseCase {
 
         isRunning = true
 
-        var power = 0f
-        var degree = 0f
-
         lifecycleCoroutineScope.launchWhenStarted {
-            flows.first.collectLatest { power = it }
-            flows.second.collectLatest { degree = it }
+            flows.first.collectLatest {
+                power = it
+            }
         }
+        lifecycleCoroutineScope.launchWhenStarted {
+            flows.second.collectLatest {
+                degree = it
+            }
+        }
+
         coroutineScope {
             while (isRunning) {
-                if (power > 0f)
+                if (power != 0f)
                 /* DRIVE MOTORS */
                 // Motor B and C control movement
                     for (motor in listOf(Motor.B, Motor.C)) {

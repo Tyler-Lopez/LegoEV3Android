@@ -50,6 +50,8 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
             when (intent.action) {
                 // First action to be received: we must ensure this is an EV3
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
+                    println("Here, detected device disconnection")
+                    if (viewModel.connectionState.value == ConnectionState.Connected)
                     viewModel.disconnectBluetoothService()
                 }
                 BluetoothDevice.ACTION_UUID -> {
@@ -192,6 +194,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     override fun onDestroyView() {
         super.onDestroyView()
         requireActivity().unregisterReceiver(receiver) // Unregister Intent receiver
+        println("Here, view is destroyed")
         viewModel.disconnectBluetoothService()
         binding = null
         boardBinding = null
@@ -232,7 +235,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 // Set Icon
                 boardBinding?.ivTopRightImage?.setImageResource(it.imageId)
                 // Set connection button visibility and text
-                boardBinding?.buttonConnectButton?.text = it.connectionButtonText
+                boardBinding?.tvConnectButton?.text = it.connectionButtonText
                 boardBinding?.rlConnectButton?.visibility = it.connectionButtonVisibility
                 // Handle animation of icon
                 boardBinding?.ivTopRightImage?.let { iv -> it.handleIconAnimation(iv, rotateAnimation) }
