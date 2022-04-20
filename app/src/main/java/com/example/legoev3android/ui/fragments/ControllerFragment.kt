@@ -90,7 +90,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     // Invoked when we have bonded to a device which we have also confirmed is a LEGO EV3
     private fun startBluetoothServiceConnection(device: BluetoothDevice) {
         viewModel.connectBluetoothService(device)
-
     }
 
     // Register for UUID changes and Bond State changes
