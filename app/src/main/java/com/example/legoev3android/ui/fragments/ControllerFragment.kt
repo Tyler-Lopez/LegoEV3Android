@@ -113,7 +113,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         boardBinding = binding!!.textLargeBoardLayout
         rotateAnimation.duration = 3600
         rotateAnimation.repeatCount = Animation.INFINITE
-        boardBinding!!.ivTopRightLoadingIcon.animation = rotateAnimation
+        boardBinding!!.ivTopRightImage.animation = rotateAnimation
         rotateAnimation.start()
 
         // Produce . . . animation next to Connected
@@ -234,7 +234,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 boardBinding?.ivTopRightImage?.setImageResource(it.imageId)
                 // Set connection button visibility and text
                 boardBinding?.buttonConnectButton?.text = it.connectionButtonText
-                boardBinding?.buttonConnectButton?.visibility = it.connectionButtonVisibility
+                boardBinding?.rlConnectButton?.visibility = it.connectionButtonVisibility
                 // Handle animation of icon
                 boardBinding?.ivTopRightImage?.let { iv -> it.handleIconAnimation(iv, rotateAnimation) }
                 // Set text appearances of header, subtext, device name
