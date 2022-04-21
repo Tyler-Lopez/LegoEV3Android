@@ -132,7 +132,8 @@ class JoystickSteerUseCase {
                                                     .createSteerMovement(
                                                         motor = Motor.A,
                                                         speedPercent = steeringPower.toInt()
-                                                    )
+                                                    ),
+                                                true
                                             )
                                     }
                                 } // End block if not at destination
@@ -166,7 +167,8 @@ class JoystickSteerUseCase {
                         .createSteerMovement(
                             motor = Motor.A,
                             speedPercent = if (isLeft) 50 else -50
-                        )
+                        ),
+                    true
                 )
 
             // Wait for move to complete

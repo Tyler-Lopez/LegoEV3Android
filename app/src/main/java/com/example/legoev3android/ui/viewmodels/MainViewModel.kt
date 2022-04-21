@@ -82,7 +82,7 @@ class MainViewModel @Inject constructor(
     fun connectBluetoothService(
         device: BluetoothDevice
     ) {
-        bluetoothService?.connect(device)
+        bluetoothService?.connect(device, _connectionState)
     }
 
 

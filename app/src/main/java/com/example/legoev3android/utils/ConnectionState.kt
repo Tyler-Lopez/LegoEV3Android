@@ -2,6 +2,7 @@ package com.example.legoev3android.utils
 
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -12,6 +13,7 @@ sealed class ConnectionState(
     val imageId: Int,
     val connectionButtonVisibility: Int,
     val connectionButtonText: String,
+    val textSubtext: String,
     val textHeaderAppearance: Int,
     val textSubtextAppearance: Int
 ) {
@@ -20,6 +22,7 @@ sealed class ConnectionState(
         R.drawable.teal_error,
         View.VISIBLE,
         "CONNECT",
+        "An error has occurred",
         R.style.TextTealShadow,
         R.style.TextLightShadow
     ) {
@@ -31,10 +34,12 @@ sealed class ConnectionState(
         }
 
         override fun handleIconAnimation(
-            imageViewBinding: ImageView,
-            rotateAnimation: RotateAnimation
+            imageViewBinding: ImageView
         ) {
-            imageViewBinding.clearAnimation()
+            if (imageViewBinding.animation != null) {
+                imageViewBinding.animation.cancel()
+                imageViewBinding.animation.reset()
+            }
         }
 
         override fun handleBackgroundAnimation(
@@ -53,6 +58,7 @@ sealed class ConnectionState(
         R.drawable.teal_bluetooth_off,
         View.VISIBLE,
         "CONNECT",
+        "Disconnected from device",
         R.style.TextTealShadow,
         R.style.TextLightShadow
     ) {
@@ -64,10 +70,12 @@ sealed class ConnectionState(
         }
 
         override fun handleIconAnimation(
-            imageViewBinding: ImageView,
-            rotateAnimation: RotateAnimation
+            imageViewBinding: ImageView
         ) {
-            imageViewBinding.clearAnimation()
+            if (imageViewBinding.animation != null) {
+                imageViewBinding.animation.cancel()
+                imageViewBinding.animation.reset()
+            }
         }
 
         override fun handleBackgroundAnimation(
@@ -86,6 +94,7 @@ sealed class ConnectionState(
         R.drawable.teal_loading,
         View.GONE,
         "",
+        "Attempting to connect to device",
         R.style.TextTealShadow,
         R.style.TextLightShadow
     ) {
@@ -97,10 +106,22 @@ sealed class ConnectionState(
         }
 
         override fun handleIconAnimation(
-            imageViewBinding: ImageView,
-            rotateAnimation: RotateAnimation
+            imageViewBinding: ImageView
         ) {
-            rotateAnimation.start()
+                // Define animation which will be applied to the loading image view
+                val rotateAnimation = RotateAnimation(
+                    0f,
+                    360f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f
+                )
+                rotateAnimation.duration = 3600
+                rotateAnimation.repeatCount = Animation.INFINITE
+                imageViewBinding.animation = rotateAnimation
+                rotateAnimation.start()
+                imageViewBinding.startAnimation(imageViewBinding.animation)
         }
 
         override fun handleBackgroundAnimation(
@@ -120,6 +141,7 @@ sealed class ConnectionState(
         R.drawable.darkgrey_white_stroke_battery_100,
         View.VISIBLE,
         "DISCONNECT",
+        "Connected to device",
         R.style.TextDarkShadow,
         R.style.TextDarkShadow
     ) {
@@ -131,10 +153,12 @@ sealed class ConnectionState(
         }
 
         override fun handleIconAnimation(
-            imageViewBinding: ImageView,
-            rotateAnimation: RotateAnimation
+            imageViewBinding: ImageView
         ) {
-            imageViewBinding.clearAnimation()
+            if (imageViewBinding.animation != null) {
+                imageViewBinding.animation.cancel()
+                imageViewBinding.animation.reset()
+            }
         }
 
         override fun handleBackgroundAnimation(
@@ -153,8 +177,7 @@ sealed class ConnectionState(
     ): ViewGroup.LayoutParams
 
     abstract fun handleIconAnimation(
-        imageViewBinding: ImageView,
-        rotateAnimation: RotateAnimation
+        imageViewBinding: ImageView
     )
 
     abstract fun handleBackgroundAnimation(

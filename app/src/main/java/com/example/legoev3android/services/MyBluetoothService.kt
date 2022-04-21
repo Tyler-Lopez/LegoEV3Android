@@ -32,11 +32,15 @@ class MyBluetoothService(
         (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
             .adapter
 
+    private var _connectionState: MutableStateFlow<ConnectionState>? = null
+
     fun connect(
-        device: BluetoothDevice
+        device: BluetoothDevice,
+        _connectionState: MutableStateFlow<ConnectionState>
     ) {
+        this._connectionState = _connectionState
         // If already connecting or connected, cancel threads
-       // if (mState == Constants.STATE_CONNECTING || mState == Constants.STATE_CONNECTED)
+        if (mState == Constants.STATE_CONNECTING || mState == Constants.STATE_CONNECTED)
             mThreads.cancelThreads()
         // Start thread to connect with device
         println("here, before start connection")
@@ -80,9 +84,12 @@ class MyBluetoothService(
     }
 
 
-    fun driveMotor(bytes: ByteArray) {
+    fun driveMotor(bytes: ByteArray, asSteer: Boolean = false) {
         if (mState == Constants.STATE_CONNECTED)
-            mThreads.writeToDrive(bytes)
+            if (asSteer)
+                mThreads.writeToSteer(bytes)
+            else
+                mThreads.writeToDrive(bytes)
         else println("ERROR: DRIVE COMMAND GIVEN WHEN NO LONGER CONNECTED") // Improve later
     }
 
@@ -190,11 +197,13 @@ class MyBluetoothService(
                     }
                 } catch (e: IOException) {
                     println("EXCEPTION THROWN $e")
+
                     Timber.e(e) // Log error
                 }
             }
 
             fun cancel() {
+
                 try {
                     mmSocket?.inputStream?.close()
                     mmSocket?.outputStream?.close()

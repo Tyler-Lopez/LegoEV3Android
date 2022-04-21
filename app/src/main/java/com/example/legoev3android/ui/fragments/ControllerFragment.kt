@@ -31,16 +31,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
     private var binding: FragmentControllerBinding? = null
     private var boardBinding: TextLargeBoardBinding? = null
 
-    // Define animation which will be applied to the loading image view
-    private var rotateAnimation = RotateAnimation(
-        0f,
-        360f,
-        Animation.RELATIVE_TO_SELF,
-        0.5f,
-        Animation.RELATIVE_TO_SELF,
-        0.5f
-    )
-
 
     // This object is used to listen to all changes in bond state to device
     private val receiver = object : BroadcastReceiver() {
@@ -52,7 +42,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     println("Here, detected device disconnection")
                     if (viewModel.connectionState.value == ConnectionState.Connected)
-                    viewModel.disconnectBluetoothService()
+                        viewModel.disconnectBluetoothService()
                 }
                 BluetoothDevice.ACTION_UUID -> {
                     val device: BluetoothDevice? =
@@ -112,10 +102,6 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
         binding = FragmentControllerBinding.bind(view)
         // Set TextBoard Binding and change connection status for first time
         boardBinding = binding!!.textLargeBoardLayout
-        rotateAnimation.duration = 3600
-        rotateAnimation.repeatCount = Animation.INFINITE
-        boardBinding!!.ivTopRightImage.animation = rotateAnimation
-        rotateAnimation.start()
 
         // Produce . . . animation next to Connected
         loopLoadingDots()
@@ -238,11 +224,17 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                 boardBinding?.tvConnectButton?.text = it.connectionButtonText
                 boardBinding?.rlConnectButton?.visibility = it.connectionButtonVisibility
                 // Handle animation of icon
-                boardBinding?.ivTopRightImage?.let { iv -> it.handleIconAnimation(iv, rotateAnimation) }
+                boardBinding?.ivTopRightImage?.let { iv ->
+                    it.handleIconAnimation(
+                        iv
+                    )
+                }
                 // Set text appearances of header, subtext, device name
                 boardBinding?.textHeader?.setTextAppearance(it.textHeaderAppearance)
                 boardBinding?.textSubtext?.setTextAppearance(it.textSubtextAppearance)
                 boardBinding?.textDeviceName?.setTextAppearance(it.textHeaderAppearance)
+                // Set subtext
+                boardBinding?.textSubtext?.text = it.textSubtext
                 // Handle ImageView background animation
                 boardBinding?.techTextBgOff?.let { iv ->
                     it.handleBackgroundAnimation(iv, false)
