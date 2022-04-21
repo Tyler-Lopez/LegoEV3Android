@@ -26,6 +26,10 @@ sealed class ConnectionState(
         R.style.TextTealShadow,
         R.style.TextLightShadow
     ) {
+        override fun getIconImage(batteryPercent: Int): Int {
+            return this.imageId
+        }
+
         override fun getTextHeaderLayoutParams(
             layoutParams: ViewGroup.LayoutParams
         ): ViewGroup.LayoutParams {
@@ -62,6 +66,10 @@ sealed class ConnectionState(
         R.style.TextTealShadow,
         R.style.TextLightShadow
     ) {
+        override fun getIconImage(batteryPercent: Int): Int {
+            return this.imageId
+        }
+
         override fun getTextHeaderLayoutParams(
             layoutParams: ViewGroup.LayoutParams
         ): ViewGroup.LayoutParams {
@@ -98,6 +106,10 @@ sealed class ConnectionState(
         R.style.TextTealShadow,
         R.style.TextLightShadow
     ) {
+        override fun getIconImage(batteryPercent: Int): Int {
+            return this.imageId
+        }
+
         override fun getTextHeaderLayoutParams(
             layoutParams: ViewGroup.LayoutParams
         ): ViewGroup.LayoutParams {
@@ -145,6 +157,16 @@ sealed class ConnectionState(
         R.style.TextDarkShadow,
         R.style.TextDarkShadow
     ) {
+
+        override fun getIconImage(batteryPercent: Int): Int {
+            return when(batteryPercent) {
+                in 75..100 -> R.drawable.darkgrey_white_stroke_battery_100
+                in 50..75 -> R.drawable.darkgrey_white_stroke_battery_75
+                in 25..50 -> R.drawable.darkgrey_white_stroke_battery_50
+                else -> R.drawable.darkgrey_white_stroke_battery_25
+            }
+        }
+
         override fun getTextHeaderLayoutParams(
             layoutParams: ViewGroup.LayoutParams
         ): ViewGroup.LayoutParams {
@@ -171,6 +193,8 @@ sealed class ConnectionState(
                 .duration = if (connectedBackground) 500 else 2000
         }
     }
+
+    abstract fun getIconImage(batteryPercent: Int): Int
 
     abstract fun getTextHeaderLayoutParams(
         layoutParams: ViewGroup.LayoutParams

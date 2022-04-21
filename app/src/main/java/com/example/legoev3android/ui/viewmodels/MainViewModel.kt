@@ -32,6 +32,8 @@ class MainViewModel @Inject constructor(
         _connectionState.value = connectionState
     }
 
+    var batteryPercent = 100
+
 
     fun clickConnectionButton() {
         when (_connectionState.value) {
@@ -64,9 +66,7 @@ class MainViewModel @Inject constructor(
             _connectionState.value = ConnectionState.Connected
 
             if (bluetoothService != null) {
-                beginMonitorBattery {
-                    println("Battery received as $it")
-                }
+                beginMonitorBattery()
                 beginJoystickSteer(
                     lifecycleCoroutineScope = lifecycleCoroutineScope,
                     flows = rightJoystickFlows
@@ -104,16 +104,13 @@ class MainViewModel @Inject constructor(
 
     // EXECUTE BATTERY MONITOR USE CASE
     private val monitorBattery = controllerUseCases.monitorBattery
-    private fun beginMonitorBattery(
-        batteryCallback: (Int) -> Unit
-    ) {
+    private fun beginMonitorBattery() {
         viewModelScope.launch {
             coroutineScope {
                 monitorBattery.beginMonitoring(
                     bluetoothService!!
                 ) {
-                    println("Here, $it")
-                    batteryCallback(it ?: -1)
+                    batteryPercent = it ?: -1
                 }
             }
         }

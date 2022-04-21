@@ -219,7 +219,7 @@ class ControllerFragment : Fragment(R.layout.fragment_controller) {
                     boardBinding?.textHeader!!.layoutParams
                 )
                 // Set Icon
-                boardBinding?.ivTopRightImage?.setImageResource(it.imageId)
+                boardBinding?.ivTopRightImage?.setImageResource(it.getIconImage(viewModel.batteryPercent))
                 // Set connection button visibility and text
                 boardBinding?.tvConnectButton?.text = it.connectionButtonText
                 boardBinding?.rlConnectButton?.visibility = it.connectionButtonVisibility

@@ -197,7 +197,8 @@ class MyBluetoothService(
                     }
                 } catch (e: IOException) {
                     println("EXCEPTION THROWN $e")
-
+                    if (_connectionState?.value is ConnectionState.Connecting)
+                        _connectionState?.value = ConnectionState.Disconnected
                     Timber.e(e) // Log error
                 }
             }
@@ -238,11 +239,18 @@ class MyBluetoothService(
                         println(reply.joinToString { "$it, " })
                         println(reply[5].toInt())
                     }
-                    listener(
-                        ByteBuffer.wrap(
-                            reply.copyOfRange(5, 9).reversedArray()
-                        ).float
-                    )
+                    if (sentByBatteryDebug)
+                        listener(
+                            (ByteBuffer.wrap(
+                                reply.copyOfRange(5, 9).reversedArray()
+                            ).int).toFloat()
+                        )
+                    else
+                        listener(
+                            ByteBuffer.wrap(
+                                reply.copyOfRange(5, 9).reversedArray()
+                            ).float
+                        )
                 } catch (e: IOException) {
                     println("Socket closed while reading $e")
                 }
